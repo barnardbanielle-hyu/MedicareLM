@@ -1493,19 +1493,61 @@ connect-src https://generativelanguage.googleapis.com;
                         contents: [{ role: "user", parts: parts }],
                         systemInstruction: { parts: [{ text: "You are MedicareLM's premium medical explainer AI. Structure your layout beautifully with clean typography, clear section dividing borders, and easily understood patient-friendly language. Always prioritize high-fidelity explanations based strictly on the selected document's text and image parameters." }] }
                     };
-                    
                     const resJson = await fetchGeminiAPI(payload);
-                    const aiRawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                    reportHTML = parseMarkdownToHTML(aiRawText);
-                } catch (err) {
-                    showToast("API Limit reached or key mismatch. Rendering local premium structure.", "warning");
-                    reportHTML = getMockPremiumReport(toolName, checkedDocs);
-                }
-            } else {
-                // High-fidelity fallback generating the requested clinical layout
-                reportHTML = getMockPremiumReport(toolName, checkedDocs);
-            }
 
+const aiRawText =
+    resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+if (!aiRawText) {
+    throw new Error(
+        resJson?.error?.message ||
+        "Gemini returned an empty response."
+    );
+}
+
+reportHTML = parseMarkdownToHTML(aiRawText);
+
+} catch (err) {
+
+    console.error("Gemini Error:", err);
+
+    showToast(
+        "Gemini Error: " + (err.message || "Unknown error"),
+        "warning"
+    );
+
+    reportHTML = `
+        <div class="p-6 bg-red-50 border border-red-200 rounded-2xl">
+            <h2 class="text-lg font-bold text-red-700 mb-3">
+                AI Generation Failed
+            </h2>
+
+            <p class="text-sm text-slate-700 mb-2">
+                MedicareLM could not generate a report.
+            </p>
+
+            <p class="text-xs text-slate-500">
+                ${err.message || "Unknown Gemini error"}
+            </p>
+        </div>
+    `;
+}
+
+} else {
+
+    reportHTML = `
+        <div class="p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+            <h2 class="text-lg font-bold text-amber-700 mb-3">
+                Gemini API Key Required
+            </h2>
+
+            <p class="text-sm text-slate-700">
+                Please enter a valid Gemini API key before generating reports.
+            </p>
+        </div>
+    `;
+}
+                    
             const reportId = Date.now();
             const report = {
                 id: reportId,
@@ -2004,6 +2046,93 @@ connect-src https://generativelanguage.googleapis.com;
         window.onload = function() {
             updateDirectoryUI();
         };
+/* ========================================================== GEMINI CONNECTION VERIFIER Add at the END of your script before ========================================================== */
+async function testGeminiConnection() {
+const key = userApiKey || apiKey || "";
+
+if (!key) {
+    showToast("No Gemini API Key entered.", "warning");
+    return false;
+}
+
+try {
+
+    const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: "Reply with only: MedicareLM Gemini Connected Successfully"
+                            }
+                        ]
+                    }
+                ]
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    console.log("Gemini Test Result:", data);
+
+    const result =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (result) {
+
+        showToast(
+            "Gemini Connected Successfully",
+            "success"
+        );
+
+        console.log("Gemini Working:", result);
+
+        return true;
+
+    } else {
+
+        console.error(data);
+
+        showToast(
+            "Gemini returned no content",
+            "warning"
+        );
+
+        return false;
+    }
+
+} catch (error) {
+
+    console.error(error);
+
+    showToast(
+        "Gemini Connection Failed",
+        "warning"
+    );
+
+    return false;
+}
+
+}
+/* Auto-run after page loads */ window.addEventListener("load", async () => {
+setTimeout(async () => {
+
+    if (userApiKey || apiKey) {
+
+        await testGeminiConnection();
+
+    }
+
+}, 1500);
+
+});
     </script>
 </body>
 </html>
