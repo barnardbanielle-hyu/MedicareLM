@@ -1,25 +1,12 @@
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<!-- MedicareLM Security Layer -->
-<meta http-equiv="Content-Security-Policy"
-content="
-default-src 'self' https:;
-script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-font-src https://fonts.gstatic.com;
-img-src 'self' data: https:;
-connect-src https://generativelanguage.googleapis.com;
-">
-
-<meta name="referrer" content="strict-origin-when-cross-origin">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedicareLM - Your Complete Health Map</title>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script> 
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -2008,93 +1995,5 @@ connect-src https://generativelanguage.googleapis.com;
 </html>
 
 ```
-<script>
-// MedicareLM Security Enhancements
 
-function sanitizeHTML(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function secureRender(id, content) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = sanitizeHTML(content);
-}
-
-// File Validation
-function validateMedicalFile(file) {
-
-    const allowedTypes = [
-        'application/pdf',
-        'image/png',
-        'image/jpeg',
-        'image/jpg'
-    ];
-
-    const maxSize = 10 * 1024 * 1024;
-
-    if (!allowedTypes.includes(file.type)) {
-        alert('Only PDF, PNG and JPG files are allowed.');
-        return false;
-    }
-
-    if (file.size > maxSize) {
-        alert('Maximum file size is 10MB.');
-        return false;
-    }
-
-    return true;
-}
-
-// Gemini Key Protection
-function saveGeminiKey(key) {
-
-    sessionStorage.setItem(
-        'medicarelm_api_key',
-        btoa(key)
-    );
-}
-
-function getGeminiKey() {
-
-    const stored =
-        sessionStorage.getItem('medicarelm_api_key');
-
-    if (!stored) return '';
-
-    return atob(stored);
-}
-
-// Audit Log
-function auditLog(action) {
-
-    const logs =
-        JSON.parse(
-            localStorage.getItem('auditLogs') || '[]'
-        );
-
-    logs.push({
-        action,
-        timestamp: new Date().toISOString()
-    });
-
-    localStorage.setItem(
-        'auditLogs',
-        JSON.stringify(logs)
-    );
-}
-
-// Medical Disclaimer Injection
-window.addEventListener('load', () => {
-
-    console.log(
-        'MedicareLM Security Layer Active'
-    );
-
-    auditLog('Application Opened');
-
-});
-</script>
 
