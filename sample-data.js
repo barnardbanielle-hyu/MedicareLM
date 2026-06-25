@@ -15,11 +15,6 @@ const MEDICARE_SAMPLE_IMAGES = [
         description: "Sample dermatitis image for AI analysis"
     },
     {
-        name: "Danielle_Johnson_Abdominal_Ultrasound.jpg",
-        url: "images/Danielle_Johnson_Abdominal_Ultrasound.jpg",
-        category: "Ultrasound",
-        description: "Sample abdominal ultrasound image"
-    }
 ];
 
 const MEDICARE_SAMPLE_REPORTS = [
@@ -31,9 +26,6 @@ const MEDICARE_SAMPLE_REPORTS = [
         name: "Danielle_Johnson_XRay_Report.pdf",
         type: "Radiology Report"
     },
-    {
-        name: "Danielle_Johnson_Ultrasound_Report.pdf",
-        type: "Imaging Report"
     }
 ];
 
