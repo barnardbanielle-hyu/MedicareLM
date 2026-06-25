@@ -438,10 +438,10 @@
                                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Recent Activity</h3>
                                 </div>
                                 <div class="space-y-4">
-                                    <div class="flex items-center gap-3 cursor-pointer p-1 hover:bg-slate-50 rounded-lg transition" onclick="viewDocument('Fake_Blood_Test_Result_For_Emma.pdf')">
+                                    <div class="flex items-center gap-3 cursor-pointer p-1 hover:bg-slate-50 rounded-lg transition" onclick="viewDocument('Danielle_Johnson_Blood_Panel.pdf')">
                                         <div class="w-8 h-8 bg-red-50 text-red-500 text-xs font-bold flex items-center justify-center rounded-lg">🩸</div>
                                         <div>
-                                            <h4 class="text-xs font-bold text-slate-800">Fake_Blood_Test_Result_For_Emma.pdf</h4>
+                                            <h4 class="text-xs font-bold text-slate-800">Danielle_Johnson_Blood_Panel.pdf</h4>
                                             <p class="text-[10px] text-slate-400">Blood Lab Panel • Active Source</p>
                                         </div>
                                     </div>
@@ -852,8 +852,8 @@
         let userApiKey = "";
         let isDarkMode = false;
         let zoomScale = 100;
-        let currentDocument =  "Danielle_Johnson_Blood_Panel.pdf";
-        let lastSelectedFile =  "Danielle_Johnson_Blood_Panel.pdf";
+        let currentDocument = "Danielle_Johnson_Blood_Panel.pdf";
+        let lastSelectedFile = "Danielle_Johnson_Blood_Panel.pdf";
         let activeDeletionTarget = null;
         
         let isWearableSynced = false;
@@ -875,11 +875,17 @@
             labs: [
                 { name: "Comprehensive_Metabolic_Panel.pdf", content: `<h3>Comprehensive Metabolic Panel</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr></thead><tbody><tr><td>Glucose</td><td>94 mg/dL</td><td>65 - 99</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>Sodium</td><td>139 mmol/L</td><td>135 - 145</td><td class='text-emerald-600 font-bold'>Normal</td></tr></tbody></table>` }
             ],
-            images: [
-                { name: "skin_dermatitis_sample.jpg", url: "https://images.unsplash.com/photo-1579684389782-64d84b5e901a?w=800" }
-            ],
-            rx: [
-                { name: "Lisinopril_Prescription.pdf", content: `<h3>Active Prescription Profile</h3><div class='p-4 bg-yellow-50 rounded-lg border border-yellow-100 mt-2'><p class='font-bold text-slate-800'>Lisinopril 10mg Daily</p><p class='text-[10px] text-slate-500'>Directions: Take 1 tablet daily by mouth in the morning.</p></div>` }
+images: [
+    {
+        name: "Danielle_Johnson_Chest_XRay.jpg",
+        url: "images/Danielle_Johnson_Chest_XRay.jpg"
+    },
+    {
+        name: "Danielle_Johnson_Dermatitis.jpg",
+        url: "images/Danielle_Johnson_Dermatitis.jpg"
+    },
+    {
+        ],                { name: "Lisinopril_Prescription.pdf", content: `<h3>Active Prescription Profile</h3><div class='p-4 bg-yellow-50 rounded-lg border border-yellow-100 mt-2'><p class='font-bold text-slate-800'>Lisinopril 10mg Daily</p><p class='text-[10px] text-slate-500'>Directions: Take 1 tablet daily by mouth in the morning.</p></div>` }
             ],
             notes: [
                 { name: "Cardiology_Consult_Notes.pdf", content: `<h3>Cardiology Consultation Notes</h3><p class='text-xs mt-2'>Patient reports normal exercise tolerances. Heart rate variables stabilizing within healthy bounds. Active smartwatch telemetry tracking recommended.</p>` }
@@ -888,7 +894,7 @@
         };
 
         let selectedSources = {
-             "Danielle_Johnson_Blood_Panel.pdf": true,
+            "Danielle_Johnson_Blood_Panel.pdf": true,
             "Chest_XRay_Clinical_Report.pdf": false,
             "Comprehensive_Metabolic_Panel.pdf": false,
             "skin_dermatitis_sample.jpg": false,
@@ -1276,115 +1282,59 @@
             }, 1200);
         }
 
+        // Core API fetch function with Exponential Backoff and fallback model support
         async function fetchGeminiAPI(payload, useModel = "gemini-2.5-flash") {
-const targetKey = userApiKey || getGeminiKey();
-
-if (!targetKey) {
-    throw new Error("No Gemini API Key Found");
-}
-
-const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${targetKey}`;
-
-let delay = 1000;
-const maxRetries = 5;
-
-for (let i = 0; i < maxRetries; i++) {
-
-    try {
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-
-            const data = await response.json();
-
-            console.log("Gemini Success:", data);
-
-            showToast(
-                "Gemini Response Received",
-                "success"
-            );
-
-            return data;
+            const targetKey = userApiKey || getGeminiKey();
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${targetKey}`;
+            
+            let delay = 1000;
+            const maxRetries = 5;
+            
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                    if (response.status === 429 || response.status >= 500) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // Exponential Backoff
+                        continue;
+                    }
+                    const errBody = await response.json();
+                    throw new Error(errBody?.error?.message || "Internal API Error");
+                } catch (err) {
+                    if (i === maxRetries - 1) {
+                        // Fallback attempt to alternate model name on final failure
+                        if (useModel === "gemini-2.5-flash") {
+                            console.warn("Retrying with fallback model 'gemini-2.5-flash-preview-09-2025'...");
+                            return await fetchGeminiAPI(payload, "gemini-2.5-flash-preview-09-2025");
+                        }
+                        throw err;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
         }
 
-        if (
-            response.status === 429 ||
-            response.status >= 500
-        ) {
-
-            await new Promise(resolve =>
-                setTimeout(resolve, delay)
-            );
-
-            delay *= 2;
-            continue;
-        }
-
-        const errBody = await response.json();
-
-        console.error(
-            "Gemini Error Response:",
-            errBody
-        );
-
-        showToast(
-            errBody?.error?.message ||
-            "Gemini API Error",
-            "warning"
-        );
-
-        throw new Error(
-            errBody?.error?.message ||
-            "Internal API Error"
-        );
-
-    } catch (err) {
-
-        if (i === maxRetries - 1) {
-
-            console.error(
-                "Gemini request failed after all retries."
-            );
-
-            console.error(err);
-
-            showToast(
-                "Gemini request failed. Check API key or payload.",
-                "warning"
-            );
-
-            throw err;
-        }
-
-        await new Promise(resolve =>
-            setTimeout(resolve, delay)
-        );
-
-        delay *= 2;
-    }
-}
-} }
-async function getSelectedSourcesContent() {
-let checkedDocs = Object.keys(selectedSources)
-    .filter(k => selectedSources[k]);
-
-if (checkedDocs.length === 0 && lastSelectedFile) {
-    checkedDocs = [lastSelectedFile];
-}
-
-let textContents = [];
-let imageContents = [];
-
-// Search in pdf
-let found = filesStore.pdf.find(d => d.name === docName);
+        // Gather all checked source contents to supply active context to Gemini
+        async function getSelectedSourcesContent() {
+            let checkedDocs = Object.keys(selectedSources).filter(k => selectedSources[k]);
+            if (checkedDocs.length === 0 && lastSelectedFile) {
+                checkedDocs = [lastSelectedFile];
+            }
+            
+            let textContents = [];
+            let imageContents = [];
+            
+            for (const docName of checkedDocs) {
+                // Search in pdf
+                let found = filesStore.pdf.find(d => d.name === docName);
                 if (found) {
                     textContents.push(`[Source Document: ${docName}]\n${found.content}`);
                     continue;
@@ -2015,43 +1965,35 @@ ${documentText}
                 el.value = "Explain my clinical LDL ranges";
             }, 1000);
         }
-window.onload = function() {
 
+        window.onload = function() {
     // Load saved Gemini API key
     const savedKey = getGeminiKey();
     if (savedKey) {
         userApiKey = savedKey;
-
         const apiKeyEl = document.getElementById('apiKey');
         if (apiKeyEl) apiKeyEl.value = savedKey;
-
         const badge = document.getElementById('key-badge');
         if (badge) {
             badge.innerText = "Active";
             badge.className = "text-[9px] font-semibold text-emerald-600";
         }
     }
-
     // MedicareLM Welcome Experience
     let userName = localStorage.getItem('medicare_user');
-
     if (!userName) {
         userName = prompt(
             "🏥 Welcome to MedicareLM\n\nPlease enter your name:"
         );
-
         if (userName && userName.trim() !== "") {
             localStorage.setItem('medicare_user', userName);
         } else {
             userName = "Guest";
         }
     }
-
     showToast(`Welcome ${userName} to MedicareLM`, "success");
-
     updateDirectoryUI();
 };
-        
         /* ========================================================== GEMINI CONNECTION VERIFIER ========================================================== */
         async function testGeminiConnection() {
             const key = userApiKey || getGeminiKey() || "";
@@ -2168,3 +2110,4 @@ window.onload = function() {
 </html>
 
 ```
+
