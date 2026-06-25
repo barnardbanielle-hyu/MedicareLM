@@ -1,29 +1,18 @@
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<!-- MedicareLM Security Layer -->
-<meta http-equiv="Content-Security-Policy"
-content="
-default-src 'self' https:;
-script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-font-src https://fonts.gstatic.com;
-img-src 'self' data: https:;
-connect-src https://generativelanguage.googleapis.com;
-">
-
-<meta name="referrer" content="strict-origin-when-cross-origin">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedicareLM - Your Complete Health Map</title>
+    <!-- DOMPurify for secure XSS prevention -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script> 
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-<script src="gemini-document-analyzer.js"></script>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #F8FAFC;
@@ -261,7 +250,7 @@ connect-src https://generativelanguage.googleapis.com;
                         <span id="key-badge" class="text-[9px] font-semibold text-amber-500">Active Mode</span>
                     </div>
                     <div class="flex gap-1.5 relative">
-                        <input type="password" id="apiKey" class="w-full text-xs px-3 py-2 pr-8 rounded-xl border border-slate-200 outline-none focus:border-blue-500 bg-white text-slate-700" placeholder="Using runtime key...">
+                        <input type="password" id="apiKey" class="w-full text-xs px-3 py-2 pr-8 rounded-xl border border-slate-200 outline-none focus:border-blue-500 bg-white text-slate-700" placeholder="AIzaSy...">
                         <button onclick="toggleKeyMask()" class="absolute right-[44px] top-2.5 text-slate-400 hover:text-slate-600 transition">
                             <svg class="w-4 h-4" id="eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -312,9 +301,46 @@ connect-src https://generativelanguage.googleapis.com;
                 </div>
             </header>
 
+            <!-- Sticky Top Workspace Action Ask Command Bar (Moved from Bottom to Top) -->
+            <div class="bg-white border-b border-slate-100 p-3 flex items-center justify-between shadow-sm shrink-0 z-20">
+                <div class="flex items-center gap-3 flex-1 px-2">
+                    <button class="p-2 bg-slate-50 rounded-full hover:bg-slate-100 text-slate-400 transition" title="Add source" onclick="triggerFileInput()">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </button>
+                    <input type="text" id="actionAskInput" onkeydown="if(event.key==='Enter') triggerSearchFlow(this.value)" placeholder="Ask Gemini about active documents / Search web..." class="w-full text-xs bg-transparent outline-none text-slate-700">
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="simulateVoiceInput()" class="p-2 hover:bg-slate-50 rounded-full text-slate-400 transition" title="Voice dictation">
+                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                        </svg>
+                    </button>
+                    <button onclick="triggerSearchFlow(document.getElementById('actionAskInput').value)" class="p-2.5 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
             <!-- Workspace Dynamic Area with overflow scrolling -->
-            <div class="flex-1 overflow-y-auto p-8 space-y-8 pb-28">
+            <div class="flex-1 overflow-y-auto p-8 space-y-8 relative">
                 
+                <!-- ==================== FROSTED AI LOADER OVERLAY ==================== -->
+                <!-- Prevents screen blanking by overlaying elegantly over current state -->
+                <div id="global-ai-loader" class="hidden absolute inset-0 bg-white/70 dark:bg-slate-950/70 backdrop-blur-[3px] z-40 flex flex-col items-center justify-center space-y-4 animate-fade-in">
+                    <div class="relative flex items-center justify-center">
+                        <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="absolute text-lg">✨</span>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">MedicareLM Synthesizing Analysis</h4>
+                        <p class="text-xs text-slate-500 mt-1" id="global-loader-message">Consulting medical intelligence vectors...</p>
+                    </div>
+                </div>
+
                 <!-- 1. DASHBOARD VIEW -->
                 <div id="view-dashboard" class="space-y-8">
                     <!-- Banner Info Header Section -->
@@ -683,30 +709,6 @@ connect-src https://generativelanguage.googleapis.com;
                 <!-- 7. DEDICATED ANALYSIS RESULT CANVAS -->
                 <div id="view-result" class="hidden space-y-6"></div>
             </div>
-
-            <!-- Floating Global Ask Gemini Control Interface Bar -->
-            <div class="absolute bottom-6 left-6 right-6 z-30 bg-white border border-slate-200 p-3 rounded-full flex items-center justify-between shadow-xl">
-                <div class="flex items-center gap-3 flex-1 px-2">
-                    <button class="p-2 bg-slate-50 rounded-full hover:bg-slate-100 text-slate-400 transition" title="Add source" onclick="triggerFileInput()">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
-                        </svg>
-                    </button>
-                    <input type="text" id="actionAskInput" onkeydown="if(event.key==='Enter') triggerSearchFlow(this.value)" placeholder="Ask Gemini about active documents / Search web..." class="w-full text-xs bg-transparent outline-none text-slate-700">
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="simulateVoiceInput()" class="p-2 hover:bg-slate-50 rounded-full text-slate-400 transition" title="Voice dictation">
-                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
-                        </svg>
-                    </button>
-                    <button onclick="triggerSearchFlow(document.getElementById('actionAskInput').value)" class="p-2.5 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
         </main>
 
         <!-- ==================== RIGHT SIDEBAR ==================== -->
@@ -846,8 +848,7 @@ connect-src https://generativelanguage.googleapis.com;
 
     <!-- JavaScript Execution Engine -->
     <script>
-        // System Config state - MANDATORY format
-        const apiKey = ""; 
+        // System Config state
         let userApiKey = "";
         let isDarkMode = false;
         let zoomScale = 100;
@@ -878,7 +879,7 @@ connect-src https://generativelanguage.googleapis.com;
                 { name: "skin_dermatitis_sample.jpg", url: "https://images.unsplash.com/photo-1579684389782-64d84b5e901a?w=800" }
             ],
             rx: [
-                { name: "Lisinopril_Prescription.pdf", content: `<h3>Active Prescriptions</h3><div class='p-4 bg-yellow-50 rounded-lg border border-yellow-100 mt-2'><p class='font-bold text-slate-800'>Lisinopril 10mg Daily</p><p class='text-[10px] text-slate-500'>Directions: Take 1 tablet daily by mouth in the morning.</p></div>` }
+                { name: "Lisinopril_Prescription.pdf", content: `<h3>Active Prescription Profile</h3><div class='p-4 bg-yellow-50 rounded-lg border border-yellow-100 mt-2'><p class='font-bold text-slate-800'>Lisinopril 10mg Daily</p><p class='text-[10px] text-slate-500'>Directions: Take 1 tablet daily by mouth in the morning.</p></div>` }
             ],
             notes: [
                 { name: "Cardiology_Consult_Notes.pdf", content: `<h3>Cardiology Consultation Notes</h3><p class='text-xs mt-2'>Patient reports normal exercise tolerances. Heart rate variables stabilizing within healthy bounds. Active smartwatch telemetry tracking recommended.</p>` }
@@ -956,6 +957,26 @@ connect-src https://generativelanguage.googleapis.com;
             );
         }
 
+        function renderBriefingResult(title, headline, detail) {
+            switchView('result');
+            const resultContainer = document.getElementById('view-result');
+            resultContainer.innerHTML = DOMPurify.sanitize(`
+                <div class="space-y-6 text-left pb-16">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase">Timeline Milestone</span>
+                            <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight mt-1">${title}</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="p-8 bg-white border border-slate-200/60 rounded-3xl card-shadow text-slate-700 space-y-4">
+                        <p class="font-bold text-slate-900">${headline}</p>
+                        <p class="text-xs text-slate-500 leading-relaxed">${detail}</p>
+                    </div>
+                </div>
+            `);
+        }
+
         // Open file dialog
         function triggerFileInput() {
             document.getElementById('sourceFileInput').click();
@@ -966,6 +987,9 @@ connect-src https://generativelanguage.googleapis.com;
             const files = event.target.files;
             if (!files.length) return;
             Array.from(files).forEach(file => {
+                // Security check
+                if (!validateMedicalFile(file)) return;
+
                 const name = file.name;
                 const extension = name.split('.').pop().toLowerCase();
                 selectedSources[name] = false;
@@ -976,29 +1000,34 @@ connect-src https://generativelanguage.googleapis.com;
                         filesStore.images.push({ name: name, url: e.target.result });
                         updateDirectoryUI();
                         showToast(`Uploaded medical image: ${name}`, "success");
+                        auditLog(`Uploaded file: ${name}`);
                     };
                     reader.readAsDataURL(file);
                 } else if (name.includes('prescription') || name.includes('Rx')) {
-                    filesStore.rx.push({ name: name, content: `<h3>Ingested Rx Data</h3><p class='mt-2'>Extracted prescription logs from <b>${name}</b>.</p>` });
+                    filesStore.rx.push({ name: name, content: `<h3>Active Prescription Profile</h3><p class='mt-2'>Extracted prescription details from <b>${name}</b>.</p>` });
                     updateDirectoryUI();
                     showToast(`Prescription logged: ${name}`, "success");
+                    auditLog(`Uploaded Prescription: ${name}`);
                 } else if (name.includes('note') || name.includes('doctor')) {
-                    filesStore.notes.push({ name: name, content: `<h3>Ingested Consult Note</h3><p class='mt-2'>Extracted physician consult notes from <b>${name}</b>.</p>` });
+                    filesStore.notes.push({ name: name, content: `<h3>Active Consult Note</h3><p class='mt-2'>Extracted clinical observation logs from <b>${name}</b>.</p>` });
                     updateDirectoryUI();
                     showToast(`Clinical note ingested: ${name}`, "success");
+                    auditLog(`Uploaded Clinical Note: ${name}`);
                 } else if (name.includes('panel') || name.includes('comp') || name.includes('lab') || name.includes('blood')) {
-                    filesStore.labs.push({ name: name, content: `<h3>Ingested Clinical Lab Results</h3><p class='mt-2'>Extracted metabolic parameters from <b>${name}</b>.</p>` });
+                    filesStore.labs.push({ name: name, content: `<h3>Active Clinical Lab Results</h3><p class='mt-2'>Extracted biochemical metrics from <b>${name}</b>.</p>` });
                     updateDirectoryUI();
                     showToast(`Lab panel logged: ${name}`, "success");
+                    auditLog(`Uploaded Lab Panel: ${name}`);
                 } else {
-                    filesStore.pdf.push({ name: name, content: `<h3>Ingested PDF Report: ${name}</h3><p class='mt-2'>Diagnostic data parsed from document reference.</p>` });
+                    filesStore.pdf.push({ name: name, content: `<h3>Ingested PDF Report: ${name}</h3><p class='mt-2'>Diagnostic documentation ingested.</p>` });
                     updateDirectoryUI();
                     showToast(`Report uploaded: ${name}`, "success");
+                    auditLog(`Uploaded Report: ${name}`);
                 }
             });
 
             // Adjust storage progress
-            const curPercent = parseInt(document.getElementById('storage-percent').innerText);
+            const curPercent = parseInt(document.getElementById('storage-percent').innerText) || 18;
             if (curPercent < 100) {
                 const updated = Math.min(100, curPercent + 4);
                 document.getElementById('storage-percent').innerText = `${updated}% used`;
@@ -1137,9 +1166,11 @@ connect-src https://generativelanguage.googleapis.com;
                 return;
             }
             userApiKey = keyVal;
+            saveGeminiKey(keyVal);
             badge.innerText = "Active";
             badge.className = "text-[9px] font-semibold text-emerald-600";
             showToast("Gemini API Key saved locally.", "success");
+            testGeminiConnection();
         }
 
         // Toggle Key password mask
@@ -1180,7 +1211,7 @@ connect-src https://generativelanguage.googleapis.com;
             const allDocs = [...filesStore.pdf, ...filesStore.labs, ...filesStore.rx, ...filesStore.notes];
             const found = allDocs.find(d => d.name === name);
             if (found) text = found.content;
-            document.getElementById('doc-render-body').innerHTML = text;
+            document.getElementById('doc-render-body').innerHTML = DOMPurify.sanitize(text);
             switchView('doc');
         }
 
@@ -1245,10 +1276,10 @@ connect-src https://generativelanguage.googleapis.com;
             }, 1200);
         }
 
-        // Core API fetch function with Exponential Backoff
-        async function fetchGeminiAPI(payload) {
-            const targetKey = userApiKey || apiKey || "";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${targetKey}`;
+        // Core API fetch function with Exponential Backoff and fallback model support
+        async function fetchGeminiAPI(payload, useModel = "gemini-2.5-flash") {
+            const targetKey = userApiKey || getGeminiKey();
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${targetKey}`;
             
             let delay = 1000;
             const maxRetries = 5;
@@ -1271,7 +1302,14 @@ connect-src https://generativelanguage.googleapis.com;
                     const errBody = await response.json();
                     throw new Error(errBody?.error?.message || "Internal API Error");
                 } catch (err) {
-                    if (i === maxRetries - 1) throw err;
+                    if (i === maxRetries - 1) {
+                        // Fallback attempt to alternate model name on final failure
+                        if (useModel === "gemini-2.5-flash") {
+                            console.warn("Retrying with fallback model 'gemini-2.5-flash-preview-09-2025'...");
+                            return await fetchGeminiAPI(payload, "gemini-2.5-flash-preview-09-2025");
+                        }
+                        throw err;
+                    }
                     await new Promise(resolve => setTimeout(resolve, delay));
                     delay *= 2;
                 }
@@ -1398,190 +1436,229 @@ connect-src https://generativelanguage.googleapis.com;
                     if (loaderBar) loaderBar.style.width = '0%';
                     if (statusParagraph) statusParagraph.innerText = originalText;
                     
-                    displayToolResult(toolName);
+                    analyzeSelectedDocuments(toolName);
                 }
             }, 150);
         }
 
-        // Render tool results dynamically to workspace
-        async function displayToolResult(toolName) {
-            switchView('result');
-            const content = document.getElementById('view-result');
-            content.innerHTML = `
-                <div class="space-y-4 animate-pulse p-4">
-                    <div class="h-4 bg-slate-200 rounded w-1/4"></div>
-                    <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-                    <div class="h-4 bg-slate-200 rounded w-1/2"></div>
-                </div>
-            `;
-            
-            let reportHTML = "";
-            let checkedDocs = Object.keys(selectedSources).filter(k => selectedSources[k]);
-            if (checkedDocs.length === 0 && lastSelectedFile) {
-                checkedDocs = [lastSelectedFile];
+        /* ========================================================== DYNAMIC ANALYZE SELECTED DOCUMENTS ========================================================== */
+        async function analyzeSelectedDocuments(toolName) {
+            let checkedDocs = Object.keys(selectedSources).filter(name => selectedSources[name]);
+
+            // Auto-fallback to viewed document/image if none are specifically checked
+            if (checkedDocs.length === 0) {
+                if (lastSelectedFile) {
+                    checkedDocs = [lastSelectedFile];
+                } else {
+                    showToast("Select at least one source document or image.", "warning");
+                    return;
+                }
             }
 
-            // Retrieve the active content context dynamically!
-            const context = await getSelectedSourcesContent();
-            const targetKey = userApiKey || apiKey || "";
-            
-            if (targetKey) {
-                try {
-                    const promptText = `Perform clinical health analysis strictly on the provided context content below. Use the tool "${toolName}". 
-                    
-                    CRITICAL FORMAT REQUIREMENT: Your output must be returned with the following exact, highly-detailed, beautifully structured layout:
-                    
-                    # Short Version
-                    The report suggests that this [patient detail] has:
-                    - [Bullet point 1]
-                    - [Bullet point 2]
-                    
-                    The reassuring news is that:
-                    - [Positive bullet point 1]
-                    - [Positive bullet point 2]
+            const targetKey = userApiKey || getGeminiKey();
 
-                    # Let's Break Down Every Part
-                    ## History
-                    "[Insert extracted clinical history]"
-                    [Detailed layman explanation of the history]
+            if (!targetKey) {
+                showToast("Enter Gemini API Key first.", "warning");
+                return;
+            }
 
-                    ## Findings Explained
-                    1. "[Insert annotated finding 1]"
-                    ### In simple language
-                    [Layman drinking straw analogies or similar structural explanations]
-                    
-                    2. "[Insert annotated finding 2]"
-                    ### In simple language
-                    [layman balloon over-inflating analogies or similar structural explanations]
+            // SHOW OVERLAY LOADER OVER ACTIVE STATE instead of going blank
+            const loaderOverlay = document.getElementById('global-ai-loader');
+            const loaderMsg = document.getElementById('global-loader-message');
+            if (loaderOverlay) {
+                loaderMsg.innerText = `Assembling context references for: ${checkedDocs.join(', ')}...`;
+                loaderOverlay.classList.remove('hidden');
+            }
 
-                    # Visual Analysis
-                    [If an image is attached, describe the photographic features, such as central airway prominence, skin rash patterns, or structural outline alignments. If no image, analyze the visual diagrammatic connections.]
+            try {
+                let documentText = "";
+                let checkedImages = [];
 
-                    # Clinical Implications
-                    ## What Probably Caused This?
-                    [Detailed pathophysiology causes, such as RSV, viral triggers, bacterial super infections, reactive airway diseases, or contact allergens]
-                    
-                    ## Symptoms This Could Cause
-                    [Persistent dry cough, wheezing, breathing rates, skin inflammation, localized rash, etc.]
-                    
-                    ## What Usually Happens Next?
-                    [Next steps depends on clinical state: listen to lungs, check oxygen, consult pediatrician, medication adjustment, inhalers, cream, etc.]
-                    
-                    ## Seek Urgent Medical Care If
-                    [Signs of labored breathing, retractions, blue discoloration, extreme sleepiness, rapidly expanding warmth, spreading redness, fever, etc.]
+                checkedDocs.forEach(docName => {
+                    const pdf = filesStore.pdf.find(x => x.name === docName);
+                    const lab = filesStore.labs.find(x => x.name === docName);
+                    const note = filesStore.notes.find(x => x.name === docName);
+                    const rx = filesStore.rx.find(x => x.name === docName);
+                    const img = filesStore.images.find(x => x.name === docName);
 
-                    # Overall Summary
-                    [Provide a final reassuring 1-sentence summary translating everything for a parent/patient]
+                    if (pdf) documentText += `[File: ${docName}]\n${pdf.content}\n\n`;
+                    if (lab) documentText += `[File: ${docName}]\n${lab.content}\n\n`;
+                    if (note) documentText += `[File: ${docName}]\n${note.content}\n\n`;
+                    if (rx) documentText += `[File: ${docName}]\n${rx.content}\n\n`;
+                    if (img) checkedImages.push(docName);
+                });
 
-                    ---
-                    CONTEXT CONTENT:
-                    ${context.text}`;
+                // Tailor custom instructions/prompts based on the specific AI tool selected
+                let systemPrompt = "";
+                let userPrompt = "";
 
-                    const parts = [{ text: promptText }];
-                    if (context.images && context.images.length > 0) {
-                        context.images.forEach(img => {
+                switch (toolName) {
+                    case "Health Summary":
+                        systemPrompt = "You are MedicareLM's premium health synthesist. Create a high-fidelity Executive Health Summary compiling all checked clinical assets into a structured wellness passport.";
+                        userPrompt = `Please synthesize an overall Health Summary based on the provided files. Structure your response with an Executive Summary, a chronological timeline of clinical events, an active medication tracker, and general health warnings.`;
+                        break;
+                    case "Explainer":
+                        systemPrompt = "You are MedicareLM's premium medical explainer AI. Your specialty is translating complicated clinical findings into highly comforting, easily understood layperson language using visual analogies (like drinking straws or balloons).";
+                        userPrompt = `Analyze the medical data and provide a patient-friendly Clinical Explainer. Translate all complex terminology (e.g., 'bronchial thickening', 'LDL values') into simple analogies.`;
+                        break;
+                    case "Health Map":
+                        systemPrompt = "You are MedicareLM's biomedical relational mapping expert. Analyze how different organs, habits, and clinical indicators correlate with one another.";
+                        userPrompt = `Create a Biological Correlational Map. Trace how factors like sleep, Lisinopril, hydration, steps, and LDL cholesterol interact with each other based on the selected records.`;
+                        break;
+                    case "Trends & Analytics":
+                        systemPrompt = "You are MedicareLM's smartwatch telemetry analytics officer. You correlate clinical findings with daily wearable biometrics (steps, blood pressure, sleep targets).";
+                        userPrompt = `Examine the wearable metrics and clinical records. Create a Trends & Analytics report showing the correlation between patient's daily physical activity/sleep habits and clinical health.`;
+                        break;
+                    case "Doctor Visit Prep":
+                        systemPrompt = "You are MedicareLM's physician preparation expert. Help the patient prepare for their upcoming doctor visit by formulating highly optimized, prioritized medical questions.";
+                        userPrompt = `Based on the provided medical findings, compile a Doctor Visit Prep guide. Include a list of prioritized clinical questions Danielle should ask her physician, checklist milestones, and key symptoms to mention.`;
+                        break;
+                    case "Image Analyzer":
+                        systemPrompt = "You are MedicareLM's clinical imaging expert. Perform an in-depth observational analysis of the provided medical image assets or visual descriptions.";
+                        userPrompt = `Perform a detailed Image Analyzer report. Inspect any uploaded clinical images (like skin dermatitis or chest x-rays) or text clinical observations and provide detailed diagnostic breakdowns of margins, colors, alignments, and potential indications.`;
+                        break;
+                    default:
+                        systemPrompt = "You are MedicareLM's universal diagnostic AI.";
+                        userPrompt = `Analyze the provided medical data and compile a structured clinical report.`;
+                }
+
+                // If no clinical data is in the text, use fallback placeholder so Gemini has a base context
+                if (!documentText.trim() && checkedImages.length === 0) {
+                    documentText = "[Context Profile: Patient Danielle Johnson | Smartwatch Sync parameters active]";
+                }
+
+                const promptText = `
+You are MedicareLM.
+${userPrompt}
+
+Analyze the following medical context data. Always prioritize patient comfort, reassurance, and actionable health guidance.
+
+Create:
+1. Executive Summary
+2. Important Findings
+3. Explanation For Patient
+4. Possible Causes
+5. Questions To Ask Doctor
+6. Recommended Next Steps
+
+Medical Data:
+${documentText}
+`;
+
+                const parts = [{ text: promptText }];
+
+                // Retrieve base64 image streams dynamically if images are selected
+                for (const imgName of checkedImages) {
+                    const foundImg = filesStore.images.find(x => x.name === imgName);
+                    if (foundImg) {
+                        let base64Data = "";
+                        let mimeType = "image/jpeg";
+
+                        if (foundImg.url.startsWith("data:")) {
+                            const partsData = foundImg.url.split(",");
+                            base64Data = partsData[1];
+                            mimeType = partsData[0].match(/:(.*?);/)[1];
+                        } else {
+                            try {
+                                const b64 = await getBase64FromUrl(foundImg.url);
+                                const partsData = b64.split(",");
+                                base64Data = partsData[1];
+                                mimeType = partsData[0].match(/:(.*?);/)[1];
+                            } catch (e) {
+                                console.error("Could not fetch base64 of image: " + imgName, e);
+                            }
+                        }
+
+                        if (base64Data) {
                             parts.push({
                                 inlineData: {
-                                    mimeType: img.mimeType,
-                                    data: img.data
+                                    mimeType: mimeType,
+                                    data: base64Data
                                 }
                             });
-                        });
+                        }
                     }
+                }
 
-                    const payload = {
-                        contents: [{ role: "user", parts: parts }],
-                        systemInstruction: { parts: [{ text: "You are MedicareLM's premium medical explainer AI. Structure your layout beautifully with clean typography, clear section dividing borders, and easily understood patient-friendly language. Always prioritize high-fidelity explanations based strictly on the selected document's text and image parameters." }] }
-                    };
-                    const resJson = await fetchGeminiAPI(payload);
+                const response = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${targetKey}`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: parts
+                            }],
+                            systemInstruction: {
+                                parts: [{ text: systemPrompt }]
+                            }
+                        })
+                    }
+                );
 
-const aiRawText =
-    resJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+                const data = await response.json();
+                const result = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
 
-if (!aiRawText) {
-    throw new Error(
-        resJson?.error?.message ||
-        "Gemini returned an empty response."
-    );
-}
+                // Transform and securely sanitize HTML
+                const formattedHTML = DOMPurify.sanitize(parseMarkdownToHTML(result));
 
-reportHTML = parseMarkdownToHTML(aiRawText);
+                const reportId = Date.now();
+                const newReport = {
+                    id: reportId,
+                    title: `${toolName} Report`,
+                    fileName: checkedDocs.join(', '),
+                    htmlContent: formattedHTML,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
 
-} catch (err) {
+                generatedReports.push(newReport);
+                updateGeneratedResultsUI();
+                activeDeletionTarget = { type: 'result', id: reportId };
 
-    console.error("Gemini Error:", err);
+                // HIDE LOADER AND TRANSITION ONLY NOW
+                if (loaderOverlay) loaderOverlay.classList.add('hidden');
+                switchView('result');
 
-    showToast(
-        "Gemini Error: " + (err.message || "Unknown error"),
-        "warning"
-    );
-
-    reportHTML = `
-        <div class="p-6 bg-red-50 border border-red-200 rounded-2xl">
-            <h2 class="text-lg font-bold text-red-700 mb-3">
-                AI Generation Failed
-            </h2>
-
-            <p class="text-sm text-slate-700 mb-2">
-                MedicareLM could not generate a report.
-            </p>
-
-            <p class="text-xs text-slate-500">
-                ${err.message || "Unknown Gemini error"}
-            </p>
-        </div>
-    `;
-}
-
-} else {
-
-    reportHTML = `
-        <div class="p-6 bg-amber-50 border border-amber-200 rounded-2xl">
-            <h2 class="text-lg font-bold text-amber-700 mb-3">
-                Gemini API Key Required
-            </h2>
-
-            <p class="text-sm text-slate-700">
-                Please enter a valid Gemini API key before generating reports.
-            </p>
-        </div>
-    `;
-}
-                    
-            const reportId = Date.now();
-            const report = {
-                id: reportId,
-                title: `${toolName} Report`,
-                fileName: checkedDocs.length > 0 ? checkedDocs.join(', ') : lastSelectedFile,
-                htmlContent: reportHTML,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
-            
-            generatedReports.push(report);
-            updateGeneratedResultsUI();
-            activeDeletionTarget = { type: 'result', id: reportId };
-            
-            // Render directly into middle panel view results
-            const resultContainer = document.getElementById('view-result');
-            resultContainer.innerHTML = `
-                <div class="space-y-6 text-left pb-16">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                        <div>
-                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase">Workspace AI Output</span>
-                            <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight mt-1" id="report-brief-title">${toolName} Diagnostic Analysis</h3>
+                const container = document.getElementById("view-result");
+                container.innerHTML = `
+                    <div class="space-y-6 text-left pb-16">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                            <div>
+                                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase">Workspace AI Output</span>
+                                <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight mt-1" id="report-brief-title">${toolName} Analysis</h3>
+                            </div>
+                            <button onclick="downloadPDFBriefing(${reportId})" class="bg-[#2563EB] text-white font-bold text-[10px] uppercase px-4 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100/50">Export Report</button>
                         </div>
-                        <button onclick="downloadPDFBriefing(${reportId})" class="bg-[#2563EB] text-white font-bold text-[10px] uppercase px-4 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100/50">Export Report</button>
-                    </div>
-                    
-                    <div class="p-8 bg-white border border-slate-200/60 rounded-3xl card-shadow prose max-w-none text-slate-700">
-                        ${reportHTML}
-                    </div>
+                        
+                        <div class="p-8 bg-white border border-slate-200/60 rounded-3xl card-shadow prose max-w-none text-slate-700">
+                            ${formattedHTML}
+                        </div>
 
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[10px] text-slate-400 italic">
-                        MedicareLM medical AI agent outputs. Always consult a physician for official clinical decisions.
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[10px] text-slate-400 italic">
+                            MedicareLM medical AI agent outputs. Always consult a physician for official clinical decisions.
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+
+                showToast("Gemini analysis complete", "success");
+            } catch(err) {
+                console.error(err);
+                showToast("Gemini analysis failed", "error");
+
+                if (loaderOverlay) loaderOverlay.classList.add('hidden');
+                switchView('result');
+
+                const container = document.getElementById("view-result");
+                container.innerHTML = `
+                    <div class="p-6 bg-red-50 border border-red-200 rounded-2xl">
+                        <h2 class="text-lg font-bold text-red-700 mb-3">AI Generation Failed</h2>
+                        <p class="text-sm text-slate-700 mb-2">MedicareLM could not complete the document analysis.</p>
+                        <p class="text-xs text-slate-500">${DOMPurify.sanitize(err.message || "Unknown Gemini connection failure")}</p>
+                    </div>
+                `;
+            }
         }
 
         // Convert Markdown styles to Premium HTML templates
@@ -1591,177 +1668,10 @@ reportHTML = parseMarkdownToHTML(aiRawText);
                 .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-slate-800 mt-4 mb-2">$1</h2>')
                 .replace(/^### (.*$)/gim, '<h3 class="text-xs font-bold text-slate-600 mt-3 mb-1 uppercase tracking-wider">$1</h3>')
                 .replace(/^\- (.*$)/gim, '<li class="ml-4 list-disc text-xs text-slate-600 my-1">$1</li>')
-                .replace(/\n\n/g, '<br/>');
+                .replace(/\n/g, '<br/>');
         }
 
-        // Generate high-fidelity mockups corresponding to your exact formatting requirements
-        function getMockPremiumReport(toolName, checkedDocs) {
-            const isXraySelected = checkedDocs.some(d => d.includes("XRay")) || lastSelectedFile.includes("XRay");
-            const isRashSelected = checkedDocs.some(d => d.includes("skin")) || lastSelectedFile.includes("skin");
-
-            if (isXraySelected) {
-                return `
-                    <div class="space-y-6">
-                        <div class="p-6 bg-red-50/40 border border-red-100 rounded-2xl">
-                            <h2 class="text-base font-bold text-red-800 mb-2">The Short Version</h2>
-                            <p class="text-xs font-semibold text-slate-700 mb-2">The report suggests that this 3-year-old child has:</p>
-                            <ul class="list-disc pl-5 space-y-1 text-xs text-slate-600">
-                                <li>Inflammation of the airways (bronchi) in both lungs.</li>
-                                <li>Hyperinflation (the lungs are holding more air than normal).</li>
-                                <li>A small area of pneumonia (bronchopneumonia) in part of the right lung.</li>
-                            </ul>
-                            <p class="text-xs font-semibold text-slate-700 mt-4 mb-2">The reassuring news is that:</p>
-                            <ul class="list-disc pl-5 space-y-1 text-xs text-slate-600">
-                                <li>The heart size is normal.</li>
-                                <li>No fluid around the lungs is mentioned.</li>
-                                <li>No lung collapse is reported.</li>
-                                <li>No enlarged lymph nodes are seen.</li>
-                                <li>No bone abnormalities are reported.</li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h2 class="text-base font-extrabold text-slate-800 border-b pb-2 mb-3">Let's Break Down Every Part</h2>
-                            <div class="space-y-4">
-                                <div>
-                                    <h3 class="text-xs font-bold text-[#2563EB]">History Parameters</h3>
-                                    <p class="text-xs text-slate-500 italic mt-0.5">"A 3 year old male presenting with persistent dry cough"</p>
-                                    <p class="text-xs text-slate-600 mt-1">This tells the radiologist why the scan was ordered. The child has had a dry, non-productive cough that isn't resolving.</p>
-                                </div>
-                                <hr class="border-slate-100" />
-                                <div>
-                                    <h3 class="text-xs font-bold text-slate-800">1. "Perihilar bronchial thickening noted bilaterally"</h3>
-                                    <p class="text-xs text-slate-600 mt-1">The bronchi are the breathing tubes carrying air into the lungs. "Bronchial thickening" means the walls of those airways are swollen. "Bilaterally" means both lungs are involved.</p>
-                                    <p class="text-[11px] text-blue-600 bg-blue-50/50 p-3 rounded-lg mt-2 font-medium"><strong>In simple language:</strong> Think of the airways as drinking straws. Normally, they are thin and open. When irritated from a viral infection, bronchitis, asthma, or reactive airway disease, the walls become swollen and thicker.</p>
-                                </div>
-                                <hr class="border-slate-100" />
-                                <div>
-                                    <h3 class="text-xs font-bold text-slate-800">2. "Hyperinflation noted"</h3>
-                                    <p class="text-xs text-slate-600 mt-1">The lungs appear to contain more air than normal. This happens when air gets trapped inside, commonly seen in children with chest infections, bronchiolitis, asthma, or reactive airway inflammation.</p>
-                                    <p class="text-[11px] text-blue-600 bg-blue-50/50 p-3 rounded-lg mt-2 font-medium"><strong>In simple language:</strong> Imagine trying to blow up a balloon and then not being able to let all the air out. The lungs stay slightly over-expanded.</p>
-                                </div>
-                                <hr class="border-slate-100" />
-                                <div>
-                                    <h3 class="text-xs font-bold text-slate-800">3. "Super added bronchopneumonic changes"</h3>
-                                    <p class="text-xs text-slate-600 mt-1">This is a clinical phrase indicating a patchy lung infection affecting smaller airways and adjacent tissue, distinct from a lobar consolidative pneumonia.</p>
-                                </div>
-                                <hr class="border-slate-100" />
-                                <div>
-                                    <h3 class="text-xs font-bold text-slate-800">4. "Patchy opacification seen in right cardiophrenic space"</h3>
-                                    <p class="text-xs text-slate-600 mt-1">The radiologist sees a cloudy white patch in the lower part of the right lung. Healthy lungs look dark; white patches indicate fluid, inflammation, or active infection.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-5 bg-purple-50/50 border border-purple-100 rounded-2xl">
-                            <h2 class="text-base font-bold text-purple-900 mb-2">Looking at the X-Ray Images Analyzer</h2>
-                            <p class="text-xs text-slate-600 mb-2">From the photographs or films provided, we can broadly observe:</p>
-                            <ul class="list-disc pl-5 space-y-1 text-xs text-slate-600">
-                                <li>Mild prominence visible around central bronchial paths.</li>
-                                <li>Some increased markings near the lower lungs.</li>
-                                <li>Patchy opacity in the lower right chest margin matching the radiologist's reports.</li>
-                                <li>Normal cardiomediastinal shadow contours without pleural effusions.</li>
-                            </ul>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 bg-slate-50 border rounded-xl">
-                                <h3 class="text-xs font-bold text-slate-800 mb-1">What Probably Caused This?</h3>
-                                <p class="text-[11px] text-slate-600">Viral respiratory infections (such as RSV, Rhinovirus, or Influenza) frequently cause airway swelling which can lead to air trapping or secondary bacterial bronchopneumonia.</p>
-                            </div>
-                            <div class="p-4 bg-slate-50 border rounded-xl">
-                                <h3 class="text-xs font-bold text-slate-800 mb-1">Symptoms This Could Cause</h3>
-                                <p class="text-[11px] text-slate-600">Persistent dry or productive cough, mild wheezing, fast breathing, low-grade fever, tiredness, and reduced appetite.</p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 bg-slate-50 border rounded-xl">
-                                <h3 class="text-xs font-bold text-slate-800 mb-1">What Usually Happens Next?</h3>
-                                <p class="text-[11px] text-slate-600">The pediatrician will listen to lung sounds, evaluate blood oxygen parameters, and determine if bronchodilator inhalers or oral antibiotics are required.</p>
-                            </div>
-                            <div class="p-4 bg-rose-50 border border-rose-100 rounded-xl">
-                                <h3 class="text-xs font-bold text-rose-800 mb-1">Seek Urgent Medical Care If</h3>
-                                <p class="text-[11px] text-rose-700 font-semibold">The child shows signs of rib retractions (muscles pulling in), blue discoloration of lips, fast labored breathing, or extreme sleepiness.</p>
-                            </div>
-                        </div>
-
-                        <div class="p-4 bg-blue-50 border border-blue-100 rounded-2xl">
-                            <p class="text-xs text-blue-900 font-semibold"><strong>Overall Impression:</strong> The X-ray displays swollen airways in both lungs with minor air retention and a localized patch of infection in the right lower lung, but shows a completely healthy heart outline with no collapsed tissue or fluid build-up.</p>
-                        </div>
-                    </div>
-                `;
-            } else if (isRashSelected) {
-                return `
-                    <div class="space-y-6">
-                        <div class="p-6 bg-red-50/40 border border-red-100 rounded-2xl">
-                            <h2 class="text-base font-bold text-red-800 mb-2">The Short Version</h2>
-                            <p class="text-xs font-semibold text-slate-700 mb-2">Visual evaluation of the skin area indicates:</p>
-                            <ul class="list-disc pl-5 space-y-1 text-xs text-slate-600">
-                                <li>Localized epidermal inflammation (erythema).</li>
-                                <li>No active spreading cellulitis border markers.</li>
-                                <li>A patchy, non-elevated profile suggesting contact irritation.</li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h2 class="text-base font-extrabold text-slate-800 border-b pb-2 mb-3">Findings Explained</h2>
-                            <div class="space-y-4">
-                                <div>
-                                    <h3 class="text-xs font-bold text-slate-800">1. Localized Redness (Erythema)</h3>
-                                    <p class="text-xs text-slate-600 mt-1">This signifies high blood flow to the upper skin layers as your body responds to minor surface contact allergens.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-5 bg-purple-50/50 border border-purple-100 rounded-2xl">
-                            <h2 class="text-base font-bold text-purple-900 mb-2">Looking at the skin_dermatitis_sample.jpg</h2>
-                            <p class="text-xs text-slate-600">The photograph demonstrates patchy pink regions without active vesicle development or deep weeping. Borders are reasonably demarcated.</p>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 bg-slate-50 border rounded-xl">
-                                <h3 class="text-xs font-bold text-slate-800 mb-1">What Probably Caused This?</h3>
-                                <p class="text-[11px] text-slate-600">Minor contact dermatitis due to external agents (soaps, plants, fabrics, or insect stings).</p>
-                            </div>
-                            <div class="p-4 bg-rose-50 border border-rose-100 rounded-xl">
-                                <h3 class="text-xs font-bold text-rose-800 mb-1">Seek Urgent Medical Care If</h3>
-                                <p class="text-[11px] text-rose-700 font-semibold">The red area begins expanding quickly, feels warm, or if fever and pus develop rapidly.</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="space-y-6">
-                        <div class="p-6 bg-blue-50/40 border border-blue-100 rounded-2xl">
-                            <h2 class="text-base font-bold text-blue-900 mb-2">The Short Version</h2>
-                            <ul class="list-disc pl-5 space-y-1 text-xs text-slate-600">
-                                <li>Total Cholesterol parameters are currently elevated at 214 mg/dL (target is < 200).</li>
-                                <li>Lisinopril 10mg treatment is sustaining stable blood pressures around 118/76 mmHg.</li>
-                                <li>Your glucose metrics demonstrate optimal metabolic balance.</li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h2 class="text-base font-extrabold text-slate-800 border-b pb-2 mb-3">Findings Breakdown</h2>
-                            <div class="space-y-4">
-                                <div>
-                                    <h3 class="text-xs font-bold text-slate-800">1. Total Cholesterol: 214 mg/dL</h3>
-                                    <p class="text-xs text-slate-600">This measures structural fat carrying particles in your blood. Regular movement targets are recommended to safely optimize HDL rates.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                            <p class="text-xs text-slate-700"><strong>Overall Impression:</strong> Your lipid levels are slightly high, but cardiovascular parameters are managed excellently through Lisinopril and daily movement.</p>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        // Draw saved generated reports
+        // Draw saved generated reports (Safely programmatically creating events to avoid DOMPurify stripping actions)
         function updateGeneratedResultsUI() {
             const list = document.getElementById('results-list');
             const badge = document.getElementById('results-count-badge');
@@ -1770,15 +1680,21 @@ reportHTML = parseMarkdownToHTML(aiRawText);
                 badge.innerText = `${generatedReports.length} Ready`;
                 list.innerHTML = "";
                 generatedReports.slice().reverse().forEach(report => {
-                    list.innerHTML += `
-                        <div onclick="renderSavedReport(${report.id})" class="p-3 bg-slate-50 border border-slate-100 rounded-xl cursor-pointer hover:border-blue-400 transition text-left">
-                            <div class="flex items-center justify-between mb-0.5">
-                                <span class="text-xs font-bold text-slate-800 truncate pr-4">${report.title}</span>
-                                <span class="text-blue-600 text-[10px] font-bold">View</span>
-                            </div>
-                            <p class="text-[9px] text-slate-400">Source: ${report.fileName} • ${report.timestamp}</p>
+                    const safeTitle = DOMPurify.sanitize(report.title);
+                    const safeFileName = DOMPurify.sanitize(report.fileName);
+                    const safeTimestamp = DOMPurify.sanitize(report.timestamp);
+
+                    const div = document.createElement('div');
+                    div.className = "p-3 bg-slate-50 border border-slate-100 rounded-xl cursor-pointer hover:border-blue-400 transition text-left";
+                    div.addEventListener('click', () => renderSavedReport(report.id));
+                    div.innerHTML = `
+                        <div class="flex items-center justify-between mb-0.5">
+                            <span class="text-xs font-bold text-slate-800 truncate pr-4">${safeTitle}</span>
+                            <span class="text-blue-600 text-[10px] font-bold">View</span>
                         </div>
+                        <p class="text-[9px] text-slate-400">Source: ${safeFileName} • ${safeTimestamp}</p>
                     `;
+                    list.appendChild(div);
                 });
             }
         }
@@ -1861,7 +1777,7 @@ reportHTML = parseMarkdownToHTML(aiRawText);
                 </div>
             `;
             
-            const targetKey = userApiKey || apiKey || "";
+            const targetKey = userApiKey || getGeminiKey();
             if (targetKey) {
                 try {
                     // Call Gemini API with grounding search query simulated prompt
@@ -1887,7 +1803,7 @@ reportHTML = parseMarkdownToHTML(aiRawText);
                         </div>
                     `).join("");
 
-                    container.innerHTML = `
+                    container.innerHTML = DOMPurify.sanitize(`
                         <div class="space-y-6 text-left pb-16">
                             <div class="border-b border-slate-100 pb-4">
                                 <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight">Biomedical Journal References</h3>
@@ -1900,7 +1816,7 @@ reportHTML = parseMarkdownToHTML(aiRawText);
 
                             ${linksHTML.length > 0 ? `<div class="space-y-2 mt-4"><h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Grounding Sources</h4>${linksHTML}</div>` : ''}
                         </div>
-                    `;
+                    `);
                 } catch (e) {
                     renderMockSearchUI(query);
                 }
@@ -1912,7 +1828,7 @@ reportHTML = parseMarkdownToHTML(aiRawText);
         // Render mock grounding search layout
         function renderMockSearchUI(query) {
             const container = document.getElementById('view-result');
-            container.innerHTML = `
+            container.innerHTML = DOMPurify.sanitize(`
                 <div class="space-y-6 text-left pb-16">
                     <div class="border-b border-slate-100 pb-4">
                         <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight">Biomedical Search Index</h3>
@@ -1922,7 +1838,7 @@ reportHTML = parseMarkdownToHTML(aiRawText);
                         <div class="p-5 bg-white border border-slate-100 rounded-2xl card-shadow">
                             <div class="flex justify-between items-start">
                                 <h4 class="text-xs font-extrabold text-[#2563EB] hover:underline cursor-pointer" onclick="window.open('https://www.ncbi.nlm.nih.gov/pmc/', '_blank')">PubMed Central: Pediatric Respiratory & Airway Markings</h4>
-                                <button onclick="saveWebSearchLink('PMC Journal: ${query}', 'https://www.ncbi.nlm.nih.gov/pmc/')" class="text-[9px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded">Save Source</button>
+                                <button onclick="saveWebSearchLink('PMC Journal: ${query.replace(/'/g, "\\'")}', 'https://www.ncbi.nlm.nih.gov/pmc/')" class="text-[9px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded">Save Source</button>
                             </div>
                             <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">Evaluating clinical metrics indicating direct physiological relationships between bronchi, bronchial thickening, hyperinflation, and pediatric airway care.</p>
                             <div class="flex items-center gap-2 mt-2">
@@ -1932,7 +1848,7 @@ reportHTML = parseMarkdownToHTML(aiRawText);
                         </div>
                     </div>
                 </div>
-            `;
+            `);
         }
 
         // Save reference link to source sidebar
@@ -1942,7 +1858,7 @@ reportHTML = parseMarkdownToHTML(aiRawText);
             showToast("Saved journal article to Sources directory!", "success");
         }
 
-        // Select and Copy url clipboard fallback helper
+        // Select and Copy url clipboard helper
         function copyToClipboard(elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
@@ -2000,14 +1916,15 @@ reportHTML = parseMarkdownToHTML(aiRawText);
             bubble.innerHTML = `<span class="animate-pulse text-slate-400">MedicareLM is formulating health answers...</span>`;
             input.value = "";
             
-            const targetKey = userApiKey || apiKey || "";
+            const targetKey = userApiKey || getGeminiKey();
             if (targetKey) {
                 try {
                     const payload = {
                         contents: [{ parts: [{ text: `DANIELLA ASKS: "${prompt}". Respond professionally with clear clinical focus based on the patient history: LDL (145), Cholesterol (214), Sleep (7.5h), BP (118/76), Lisinopril 10mg.` }] }]
                     };
                     const resJson = await fetchGeminiAPI(payload);
-                    bubble.innerText = resJson.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    const answer = resJson.candidates?.[0]?.content?.parts?.[0]?.text || "No reply was received.";
+                    bubble.innerHTML = DOMPurify.sanitize(answer.replace(/\n/g, '<br>'));
                 } catch (err) {
                     showToast("API timeout. Showing local fallback.", "warning");
                     renderMockChatResponse(prompt);
@@ -2044,187 +1961,134 @@ reportHTML = parseMarkdownToHTML(aiRawText);
         }
 
         window.onload = function() {
+            // Load saved API key if present
+            const savedKey = getGeminiKey();
+            if (savedKey) {
+                userApiKey = savedKey;
+                const apiKeyEl = document.getElementById('apiKey');
+                if (apiKeyEl) apiKeyEl.value = savedKey;
+                const badge = document.getElementById('key-badge');
+                if (badge) {
+                    badge.innerText = "Active";
+                    badge.className = "text-[9px] font-semibold text-emerald-600";
+                }
+            }
             updateDirectoryUI();
         };
-/* ========================================================== GEMINI CONNECTION VERIFIER Add at the END of your script before ========================================================== */
-async function testGeminiConnection() {
-const key = userApiKey || apiKey || "";
 
-if (!key) {
-    showToast("No Gemini API Key entered.", "warning");
-    return false;
-}
+        /* ========================================================== GEMINI CONNECTION VERIFIER ========================================================== */
+        async function testGeminiConnection() {
+            const key = userApiKey || getGeminiKey() || "";
 
-try {
+            if (!key) {
+                showToast("No Gemini API Key entered.", "warning");
+                return false;
+            }
 
-    const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                contents: [
+            try {
+                // Testing connection using standard model
+                const response = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`,
                     {
-                        parts: [
-                            {
-                                text: "Reply with only: MedicareLM Gemini Connected Successfully"
-                            }
-                        ]
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            contents: [
+                                {
+                                    parts: [
+                                        {
+                                            text: "Reply with only: MedicareLM Gemini Connected Successfully"
+                                        }
+                                    ]
+                                }
+                            ]
+                        })
                     }
-                ]
-            })
+                );
+
+                const data = await response.json();
+                console.log("Gemini Test Result:", data);
+                const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (result) {
+                    showToast("Gemini Connected Successfully", "success");
+                    return true;
+                } else {
+                    console.error(data);
+                    showToast("Gemini returned no content", "warning");
+                    return false;
+                }
+            } catch (error) {
+                console.error(error);
+                showToast("Gemini Connection Failed", "warning");
+                return false;
+            }
         }
-    );
 
-    const data = await response.json();
+        /* Auto-run after page loads */ 
+        window.addEventListener("load", async () => {
+            setTimeout(async () => {
+                if (userApiKey || getGeminiKey()) {
+                    await testGeminiConnection();
+                }
+            }, 1500);
+        });
 
-    console.log("Gemini Test Result:", data);
+        /* ========================================== MEDICARELM SECURITY LAYER ENHANCEMENTS ========================================== */
+        // File Validation
+        function validateMedicalFile(file) {
+            const allowedTypes = [
+                'application/pdf',
+                'image/png',
+                'image/jpeg',
+                'image/jpg'
+            ];
 
-    const result =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            const maxSize = 10 * 1024 * 1024; // 10MB limit
 
-    if (result) {
+            if (!allowedTypes.includes(file.type)) {
+                showToast('Only PDF, PNG and JPG files are allowed.', 'error');
+                return false;
+            }
 
-        showToast(
-            "Gemini Connected Successfully",
-            "success"
-        );
+            if (file.size > maxSize) {
+                showToast('Maximum file size is 10MB.', 'error');
+                return false;
+            }
 
-        console.log("Gemini Working:", result);
+            return true;
+        }
 
-        return true;
+        // Gemini Key Protection
+        function saveGeminiKey(key) {
+            sessionStorage.setItem('medicarelm_api_key', btoa(key));
+        }
 
-    } else {
+        // Get Gemini Key
+        function getGeminiKey() {
+            const stored = sessionStorage.getItem('medicarelm_api_key');
+            if (!stored) return '';
+            return atob(stored);
+        }
 
-        console.error(data);
+        // Audit Logging
+        function auditLog(action) {
+            const logs = JSON.parse(localStorage.getItem('auditLogs') || '[]');
+            logs.push({
+                action,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('auditLogs', JSON.stringify(logs));
+        }
 
-        showToast(
-            "Gemini returned no content",
-            "warning"
-        );
-
-        return false;
-    }
-
-} catch (error) {
-
-    console.error(error);
-
-    showToast(
-        "Gemini Connection Failed",
-        "warning"
-    );
-
-    return false;
-}
-
-}
-/* Auto-run after page loads */ window.addEventListener("load", async () => {
-setTimeout(async () => {
-
-    if (userApiKey || apiKey) {
-
-        await testGeminiConnection();
-
-    }
-
-}, 1500);
-
-});
+        window.addEventListener('load', () => {
+            console.log('MedicareLM Security Layer Active');
+            auditLog('Application Opened');
+        });
     </script>
 </body>
 </html>
 
 ```
-<script>
-// MedicareLM Security Enhancements
-
-function sanitizeHTML(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function secureRender(id, content) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = sanitizeHTML(content);
-}
-
-// File Validation
-function validateMedicalFile(file) {
-
-    const allowedTypes = [
-        'application/pdf',
-        'image/png',
-        'image/jpeg',
-        'image/jpg'
-    ];
-
-    const maxSize = 10 * 1024 * 1024;
-
-    if (!allowedTypes.includes(file.type)) {
-        alert('Only PDF, PNG and JPG files are allowed.');
-        return false;
-    }
-
-    if (file.size > maxSize) {
-        alert('Maximum file size is 10MB.');
-        return false;
-    }
-
-    return true;
-}
-
-// Gemini Key Protection
-function saveGeminiKey(key) {
-
-    sessionStorage.setItem(
-        'medicarelm_api_key',
-        btoa(key)
-    );
-}
-
-function getGeminiKey() {
-
-    const stored =
-        sessionStorage.getItem('medicarelm_api_key');
-
-    if (!stored) return '';
-
-    return atob(stored);
-}
-
-// Audit Log
-function auditLog(action) {
-
-    const logs =
-        JSON.parse(
-            localStorage.getItem('auditLogs') || '[]'
-        );
-
-    logs.push({
-        action,
-        timestamp: new Date().toISOString()
-    });
-
-    localStorage.setItem(
-        'auditLogs',
-        JSON.stringify(logs)
-    );
-}
-
-// Medical Disclaimer Injection
-window.addEventListener('load', () => {
-
-    console.log(
-        'MedicareLM Security Layer Active'
-    );
-
-    auditLog('Application Opened');
-
-});
-</script>
-
