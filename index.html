@@ -852,8 +852,8 @@
         let userApiKey = "";
         let isDarkMode = false;
         let zoomScale = 100;
-        let currentDocument = "Fake_Blood_Test_Result_For_Emma.pdf";
-        let lastSelectedFile = "Fake_Blood_Test_Result_For_Emma.pdf";
+        let currentDocument =  "Danielle_Johnson_Blood_Panel.pdf";
+        let lastSelectedFile =  "Danielle_Johnson_Blood_Panel.pdf";
         let activeDeletionTarget = null;
         
         let isWearableSynced = false;
@@ -869,7 +869,7 @@
         // Ingestion file data store
         const filesStore = {
             pdf: [
-                { name: "Fake_Blood_Test_Result_For_Emma.pdf", content: `<h3>Complete Blood Count (CBC)</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr></thead><tbody><tr><td>WBC</td><td>6.2</td><td>4.0 - 10.0</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>RBC</td><td>4.35</td><td>3.8 - 5.2</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>Hemoglobin</td><td>12.1</td><td>12.0 - 15.5</td><td class='text-emerald-600 font-bold'>Normal</td></tr></tbody></table><br/><h3>Lipid Panel Profile</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Biomarker</th><th>Value</th><th>Target</th><th>Flag</th></tr></thead><tbody><tr><td>Total Cholesterol</td><td>214 mg/dL</td><td>&lt; 200</td><td class='text-red-500 font-bold'>High</td></tr><tr><td>HDL Cholesterol</td><td>48 mg/dL</td><td>&gt; 50</td><td class='text-red-500 font-bold'>Low</td></tr><tr><td>LDL Cholesterol</td><td>145 mg/dL</td><td>&lt; 100</td><td class='text-red-500 font-bold'>High</td></tr></tbody></table>` },
+                { name: "Danielle_Johnson_Blood_Panel.pdf", content: `<h3>Complete Blood Count (CBC)</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr></thead><tbody><tr><td>WBC</td><td>6.2</td><td>4.0 - 10.0</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>RBC</td><td>4.35</td><td>3.8 - 5.2</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>Hemoglobin</td><td>12.1</td><td>12.0 - 15.5</td><td class='text-emerald-600 font-bold'>Normal</td></tr></tbody></table><br/><h3>Lipid Panel Profile</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Biomarker</th><th>Value</th><th>Target</th><th>Flag</th></tr></thead><tbody><tr><td>Total Cholesterol</td><td>214 mg/dL</td><td>&lt; 200</td><td class='text-red-500 font-bold'>High</td></tr><tr><td>HDL Cholesterol</td><td>48 mg/dL</td><td>&gt; 50</td><td class='text-red-500 font-bold'>Low</td></tr><tr><td>LDL Cholesterol</td><td>145 mg/dL</td><td>&lt; 100</td><td class='text-red-500 font-bold'>High</td></tr></tbody></table>` },
                 { name: "Chest_XRay_Clinical_Report.pdf", content: `<h3>Radiology Clinical Evaluation Report</h3><div class='p-4 bg-slate-50 rounded-xl border border-slate-200 mt-2'><p class='font-bold text-slate-800'>CHEST PA & LATERAL EXAMINATION</p><p class='text-[10px] text-slate-500 mt-1'>INDICATION: Persistent dry cough in a 3-year-old male child.</p><p class='text-[10px] text-slate-500 mt-2'>FINDINGS:<br/>Perihilar bronchial thickening noted bilaterally. Hyperinflation noted. Super added bronchopneumonic changes. Patchy opacification seen in the right cardiophrenic space. No peripheral lobar consolidations. The heart shadow is normal in size. No features of hilar or mediastinal lymphadenopathy. No displacement of the trachea. Aortic arch is normal in appearance. No abnormalities of the bones or superficial soft tissues seen.</p></div>` }
             ],
             labs: [
@@ -888,7 +888,7 @@
         };
 
         let selectedSources = {
-            "Fake_Blood_Test_Result_For_Emma.pdf": true,
+             "Danielle_Johnson_Blood_Panel.pdf": true,
             "Chest_XRay_Clinical_Report.pdf": false,
             "Comprehensive_Metabolic_Panel.pdf": false,
             "skin_dermatitis_sample.jpg": false,
@@ -1276,59 +1276,115 @@
             }, 1200);
         }
 
-        // Core API fetch function with Exponential Backoff and fallback model support
         async function fetchGeminiAPI(payload, useModel = "gemini-2.5-flash") {
-            const targetKey = userApiKey || getGeminiKey();
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${targetKey}`;
-            
-            let delay = 1000;
-            const maxRetries = 5;
-            
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (response.ok) {
-                        return await response.json();
-                    }
-                    if (response.status === 429 || response.status >= 500) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2; // Exponential Backoff
-                        continue;
-                    }
-                    const errBody = await response.json();
-                    throw new Error(errBody?.error?.message || "Internal API Error");
-                } catch (err) {
-                    if (i === maxRetries - 1) {
-                        // Fallback attempt to alternate model name on final failure
-                        if (useModel === "gemini-2.5-flash") {
-                            console.warn("Retrying with fallback model 'gemini-2.5-flash-preview-09-2025'...");
-                            return await fetchGeminiAPI(payload, "gemini-2.5-flash-preview-09-2025");
-                        }
-                        throw err;
-                    }
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
-                }
-            }
+const targetKey = userApiKey || getGeminiKey();
+
+if (!targetKey) {
+    throw new Error("No Gemini API Key Found");
+}
+
+const url =
+    `https://generativelanguage.googleapis.com/v1beta/models/${useModel}:generateContent?key=${targetKey}`;
+
+let delay = 1000;
+const maxRetries = 5;
+
+for (let i = 0; i < maxRetries; i++) {
+
+    try {
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+
+            const data = await response.json();
+
+            console.log("Gemini Success:", data);
+
+            showToast(
+                "Gemini Response Received",
+                "success"
+            );
+
+            return data;
         }
 
-        // Gather all checked source contents to supply active context to Gemini
-        async function getSelectedSourcesContent() {
-            let checkedDocs = Object.keys(selectedSources).filter(k => selectedSources[k]);
-            if (checkedDocs.length === 0 && lastSelectedFile) {
-                checkedDocs = [lastSelectedFile];
-            }
-            
-            let textContents = [];
-            let imageContents = [];
-            
-            for (const docName of checkedDocs) {
-                // Search in pdf
-                let found = filesStore.pdf.find(d => d.name === docName);
+        if (
+            response.status === 429 ||
+            response.status >= 500
+        ) {
+
+            await new Promise(resolve =>
+                setTimeout(resolve, delay)
+            );
+
+            delay *= 2;
+            continue;
+        }
+
+        const errBody = await response.json();
+
+        console.error(
+            "Gemini Error Response:",
+            errBody
+        );
+
+        showToast(
+            errBody?.error?.message ||
+            "Gemini API Error",
+            "warning"
+        );
+
+        throw new Error(
+            errBody?.error?.message ||
+            "Internal API Error"
+        );
+
+    } catch (err) {
+
+        if (i === maxRetries - 1) {
+
+            console.error(
+                "Gemini request failed after all retries."
+            );
+
+            console.error(err);
+
+            showToast(
+                "Gemini request failed. Check API key or payload.",
+                "warning"
+            );
+
+            throw err;
+        }
+
+        await new Promise(resolve =>
+            setTimeout(resolve, delay)
+        );
+
+        delay *= 2;
+    }
+}
+} }
+async function getSelectedSourcesContent() {
+let checkedDocs = Object.keys(selectedSources)
+    .filter(k => selectedSources[k]);
+
+if (checkedDocs.length === 0 && lastSelectedFile) {
+    checkedDocs = [lastSelectedFile];
+}
+
+let textContents = [];
+let imageContents = [];
+
+// Search in pdf
+let found = filesStore.pdf.find(d => d.name === docName);
                 if (found) {
                     textContents.push(`[Source Document: ${docName}]\n${found.content}`);
                     continue;
@@ -1959,23 +2015,43 @@ ${documentText}
                 el.value = "Explain my clinical LDL ranges";
             }, 1000);
         }
+window.onload = function() {
 
-        window.onload = function() {
-            // Load saved API key if present
-            const savedKey = getGeminiKey();
-            if (savedKey) {
-                userApiKey = savedKey;
-                const apiKeyEl = document.getElementById('apiKey');
-                if (apiKeyEl) apiKeyEl.value = savedKey;
-                const badge = document.getElementById('key-badge');
-                if (badge) {
-                    badge.innerText = "Active";
-                    badge.className = "text-[9px] font-semibold text-emerald-600";
-                }
-            }
-            updateDirectoryUI();
-        };
+    // Load saved Gemini API key
+    const savedKey = getGeminiKey();
+    if (savedKey) {
+        userApiKey = savedKey;
 
+        const apiKeyEl = document.getElementById('apiKey');
+        if (apiKeyEl) apiKeyEl.value = savedKey;
+
+        const badge = document.getElementById('key-badge');
+        if (badge) {
+            badge.innerText = "Active";
+            badge.className = "text-[9px] font-semibold text-emerald-600";
+        }
+    }
+
+    // MedicareLM Welcome Experience
+    let userName = localStorage.getItem('medicare_user');
+
+    if (!userName) {
+        userName = prompt(
+            "🏥 Welcome to MedicareLM\n\nPlease enter your name:"
+        );
+
+        if (userName && userName.trim() !== "") {
+            localStorage.setItem('medicare_user', userName);
+        } else {
+            userName = "Guest";
+        }
+    }
+
+    showToast(`Welcome ${userName} to MedicareLM`, "success");
+
+    updateDirectoryUI();
+};
+        
         /* ========================================================== GEMINI CONNECTION VERIFIER ========================================================== */
         async function testGeminiConnection() {
             const key = userApiKey || getGeminiKey() || "";
