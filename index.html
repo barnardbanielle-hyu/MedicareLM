@@ -438,10 +438,10 @@
                                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Recent Activity</h3>
                                 </div>
                                 <div class="space-y-4">
-                                    <div class="flex items-center gap-3 cursor-pointer p-1 hover:bg-slate-50 rounded-lg transition" onclick="viewDocument('Danielle_Johnson_Blood_Panel.pdf')">
+                                    <div class="flex items-center gap-3 cursor-pointer p-1 hover:bg-slate-50 rounded-lg transition" onclick="viewDocument('Blood_Test_Result_For_Emma.pdf')">
                                         <div class="w-8 h-8 bg-red-50 text-red-500 text-xs font-bold flex items-center justify-center rounded-lg">🩸</div>
                                         <div>
-                                            <h4 class="text-xs font-bold text-slate-800">Danielle_Johnson_Blood_Panel.pdf</h4>
+                                            <h4 class="text-xs font-bold text-slate-800">Blood_Test_Result_For_Emma.pdf</h4>
                                             <p class="text-[10px] text-slate-400">Blood Lab Panel • Active Source</p>
                                         </div>
                                     </div>
@@ -852,8 +852,8 @@
         let userApiKey = "";
         let isDarkMode = false;
         let zoomScale = 100;
-        let currentDocument = "Danielle_Johnson_Blood_Panel.pdf";
-        let lastSelectedFile = "Danielle_Johnson_Blood_Panel.pdf";
+        let currentDocument = "Blood_Test_Result_For_Emma.pdf";
+        let lastSelectedFile = "Blood_Test_Result_For_Emma.pdf";
         let activeDeletionTarget = null;
         
         let isWearableSynced = false;
@@ -869,23 +869,21 @@
         // Ingestion file data store
         const filesStore = {
             pdf: [
-                { name: "Danielle_Johnson_Blood_Panel.pdf", content: `<h3>Complete Blood Count (CBC)</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr></thead><tbody><tr><td>WBC</td><td>6.2</td><td>4.0 - 10.0</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>RBC</td><td>4.35</td><td>3.8 - 5.2</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>Hemoglobin</td><td>12.1</td><td>12.0 - 15.5</td><td class='text-emerald-600 font-bold'>Normal</td></tr></tbody></table><br/><h3>Lipid Panel Profile</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Biomarker</th><th>Value</th><th>Target</th><th>Flag</th></tr></thead><tbody><tr><td>Total Cholesterol</td><td>214 mg/dL</td><td>&lt; 200</td><td class='text-red-500 font-bold'>High</td></tr><tr><td>HDL Cholesterol</td><td>48 mg/dL</td><td>&gt; 50</td><td class='text-red-500 font-bold'>Low</td></tr><tr><td>LDL Cholesterol</td><td>145 mg/dL</td><td>&lt; 100</td><td class='text-red-500 font-bold'>High</td></tr></tbody></table>` },
+                { name: "Blood_Test_Result_For_Emma.pdf", content: `<h3>Complete Blood Count (CBC)</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr></thead><tbody><tr><td>WBC</td><td>6.2</td><td>4.0 - 10.0</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>RBC</td><td>4.35</td><td>3.8 - 5.2</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>Hemoglobin</td><td>12.1</td><td>12.0 - 15.5</td><td class='text-emerald-600 font-bold'>Normal</td></tr></tbody></table><br/><h3>Lipid Panel Profile</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Biomarker</th><th>Value</th><th>Target</th><th>Flag</th></tr></thead><tbody><tr><td>Total Cholesterol</td><td>214 mg/dL</td><td>&lt; 200</td><td class='text-red-500 font-bold'>High</td></tr><tr><td>HDL Cholesterol</td><td>48 mg/dL</td><td>&gt; 50</td><td class='text-red-500 font-bold'>Low</td></tr><tr><td>LDL Cholesterol</td><td>145 mg/dL</td><td>&lt; 100</td><td class='text-red-500 font-bold'>High</td></tr></tbody></table>` },
                 { name: "Chest_XRay_Clinical_Report.pdf", content: `<h3>Radiology Clinical Evaluation Report</h3><div class='p-4 bg-slate-50 rounded-xl border border-slate-200 mt-2'><p class='font-bold text-slate-800'>CHEST PA & LATERAL EXAMINATION</p><p class='text-[10px] text-slate-500 mt-1'>INDICATION: Persistent dry cough in a 3-year-old male child.</p><p class='text-[10px] text-slate-500 mt-2'>FINDINGS:<br/>Perihilar bronchial thickening noted bilaterally. Hyperinflation noted. Super added bronchopneumonic changes. Patchy opacification seen in the right cardiophrenic space. No peripheral lobar consolidations. The heart shadow is normal in size. No features of hilar or mediastinal lymphadenopathy. No displacement of the trachea. Aortic arch is normal in appearance. No abnormalities of the bones or superficial soft tissues seen.</p></div>` }
             ],
             labs: [
                 { name: "Comprehensive_Metabolic_Panel.pdf", content: `<h3>Comprehensive Metabolic Panel</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr></thead><tbody><tr><td>Glucose</td><td>94 mg/dL</td><td>65 - 99</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>Sodium</td><td>139 mmol/L</td><td>135 - 145</td><td class='text-emerald-600 font-bold'>Normal</td></tr></tbody></table>` }
             ],
-        images: [
+images: [
     {
-        name: "Danielle_Johnson_Chest_XRay.jpg",
-        url: "images/Danielle_Johnson_Chest_XRay.jpg"
-    },
-    {
-        name: "Danielle_Johnson_Dermatitis.jpg",
+        name: "skin_dermatitis_sample.jpg",
         url: "images/Danielle_Johnson_Dermatitis.jpg"
-    },
-    {
-        ],                { name: "Lisinopril_Prescription.pdf", content: `<h3>Active Prescription Profile</h3><div class='p-4 bg-yellow-50 rounded-lg border border-yellow-100 mt-2'><p class='font-bold text-slate-800'>Lisinopril 10mg Daily</p><p class='text-[10px] text-slate-500'>Directions: Take 1 tablet daily by mouth in the morning.</p></div>` }
+    }
+],
+
+rx: [
+                { name: "Lisinopril_Prescription.pdf", content: `<h3>Active Prescription Profile</h3><div class='p-4 bg-yellow-50 rounded-lg border border-yellow-100 mt-2'><p class='font-bold text-slate-800'>Lisinopril 10mg Daily</p><p class='text-[10px] text-slate-500'>Directions: Take 1 tablet daily by mouth in the morning.</p></div>` }
             ],
             notes: [
                 { name: "Cardiology_Consult_Notes.pdf", content: `<h3>Cardiology Consultation Notes</h3><p class='text-xs mt-2'>Patient reports normal exercise tolerances. Heart rate variables stabilizing within healthy bounds. Active smartwatch telemetry tracking recommended.</p>` }
@@ -894,7 +892,7 @@
         };
 
         let selectedSources = {
-            "Danielle_Johnson_Blood_Panel.pdf": true,
+            "Blood_Test_Result_For_Emma.pdf": true,
             "Chest_XRay_Clinical_Report.pdf": false,
             "Comprehensive_Metabolic_Panel.pdf": false,
             "skin_dermatitis_sample.jpg": false,
