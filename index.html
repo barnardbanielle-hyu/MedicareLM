@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +11,21 @@
     <script src="https://cdn.tailwindcss.com"></script> 
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- MathJax for rendering gorgeous clinical LaTeX equations/ranges cleanly -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
     
     <style>
         body {
@@ -106,6 +122,47 @@
                 stroke-dashoffset: -1000;
             }
         }
+
+        /* GEMINI COLOR WAVES BACKGROUND ANIMATION */
+        @keyframes geminiWaves {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .gemini-thinking-bg {
+            background: linear-gradient(135deg, 
+                rgba(37, 99, 235, 0.12), 
+                rgba(124, 58, 237, 0.12), 
+                rgba(219, 39, 119, 0.12), 
+                rgba(16, 185, 129, 0.12),
+                rgba(37, 99, 235, 0.12)
+            );
+            background-size: 400% 400%;
+            animation: geminiWaves 12s ease infinite;
+        }
+        .dark .gemini-thinking-bg {
+            background: linear-gradient(135deg, 
+                rgba(37, 99, 235, 0.25), 
+                rgba(124, 58, 237, 0.25), 
+                rgba(219, 39, 119, 0.25), 
+                rgba(16, 185, 129, 0.25),
+                rgba(37, 99, 235, 0.25)
+            );
+            background-size: 400% 400%;
+            animation: geminiWaves 12s ease infinite;
+        }
+
+        /* API Key card shimmer background */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .premium-grad-card {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -120,7 +177,7 @@
         <aside class="w-[300px] bg-white border-r border-slate-100 p-6 flex flex-col justify-between shrink-0 overflow-y-auto z-10">
             <div>
                 <!-- Brand logo and name -->
-                <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="switchView('dashboard')">
+                <div class="flex items-center gap-3 mb-6 cursor-pointer" onclick="switchView('dashboard')">
                     <div class="w-10 h-10 bg-[#2563EB] text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-100 font-bold text-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -129,6 +186,26 @@
                     <div>
                         <h1 class="font-bold text-slate-900 tracking-tight text-base leading-none mb-1">MedicareLM</h1>
                         <p class="text-[10px] text-slate-400 font-medium">Your complete health map</p>
+                    </div>
+                </div>
+
+                <!-- API Key placed cleanly right on top, below brand, above sources -->
+                <div class="premium-grad-card rounded-2xl p-4 text-white shadow-lg shadow-indigo-100/40 border border-white/10 mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-white/80 flex items-center gap-1.5">
+                            Gemini API Key
+                        </span>
+                        <span id="key-badge" class="text-[9px] font-bold px-2 py-0.5 bg-white/20 rounded-full text-white">Active Mode</span>
+                    </div>
+                    <div class="flex gap-1.5 relative">
+                        <input type="password" id="apiKey" class="w-full text-xs px-3 py-2 pr-8 rounded-xl border border-white/10 outline-none bg-white/15 text-white placeholder-white/50 focus:bg-white/25 transition" placeholder="AIzaSy...">
+                        <button onclick="toggleKeyMask()" class="absolute right-[44px] top-2.5 text-white/70 hover:text-white transition">
+                            <svg class="w-4 h-4" id="eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                        <button onclick="connectApiKey()" class="bg-white text-indigo-700 font-bold text-xs px-3 py-2 rounded-xl hover:bg-slate-50 transition shrink-0 shadow-sm">Set</button>
                     </div>
                 </div>
 
@@ -240,26 +317,6 @@
                     <p class="text-[10px] text-slate-400 mt-1">1.8 GB / 10 GB</p>
                 </div>
 
-                <!-- Gemini API Key connection box -->
-                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                            Gemini API Key
-                        </span>
-                        <span id="key-badge" class="text-[9px] font-semibold text-amber-500">Active Mode</span>
-                    </div>
-                    <div class="flex gap-1.5 relative">
-                        <input type="password" id="apiKey" class="w-full text-xs px-3 py-2 pr-8 rounded-xl border border-slate-200 outline-none focus:border-blue-500 bg-white text-slate-700" placeholder="AIzaSy...">
-                        <button onclick="toggleKeyMask()" class="absolute right-[44px] top-2.5 text-slate-400 hover:text-slate-600 transition">
-                            <svg class="w-4 h-4" id="eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                        </button>
-                        <button onclick="connectApiKey()" class="bg-[#2563EB] text-white font-bold text-xs px-3 py-2 rounded-xl hover:bg-blue-700 transition">Set</button>
-                    </div>
-                </div>
-
                 <!-- DELETE ACTION TRIGGER -->
                 <button onclick="deleteSelectedItem()" class="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border border-red-100">
                     Delete Selected Item
@@ -294,7 +351,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
                         </svg>
                     </button>
-                    <div class="w-9 h-9 bg-blue-50 text-blue-600 font-bold text-xs rounded-xl flex items-center justify-center border border-blue-100">
+                    <div id="user-initials" class="w-9 h-9 bg-blue-50 text-blue-600 font-bold text-xs rounded-xl flex items-center justify-center border border-blue-100 select-none">
                         DJ
                     </div>
                 </div>
@@ -327,16 +384,20 @@
             <!-- Workspace Dynamic Area with overflow scrolling -->
             <div class="flex-1 overflow-y-auto p-8 space-y-8 relative">
                 
-                <!-- ==================== FROSTED AI LOADER OVERLAY ==================== -->
-                <!-- Prevents screen blanking by overlaying elegantly over current state -->
-                <div id="global-ai-loader" class="hidden absolute inset-0 bg-white/70 dark:bg-slate-950/70 backdrop-blur-[3px] z-40 flex flex-col items-center justify-center space-y-4 animate-fade-in">
+                <!-- ==================== DYNAMIC GEMINI COLOR-WAVES THINKING SCREEN ==================== -->
+                <!-- Elegant, moving color waves with translucent glassmorphism backdrop during generation -->
+                <div id="global-ai-loader" class="hidden absolute inset-0 gemini-thinking-bg backdrop-blur-[10px] z-40 flex flex-col items-center justify-center space-y-5 animate-fade-in">
                     <div class="relative flex items-center justify-center">
-                        <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                        <span class="absolute text-lg">✨</span>
+                        <!-- Morphing breathing rings -->
+                        <div class="absolute w-24 h-24 bg-blue-500/15 rounded-full animate-ping duration-1000"></div>
+                        <div class="absolute w-16 h-16 bg-purple-500/20 rounded-full animate-pulse"></div>
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-pink-500 flex items-center justify-center shadow-lg text-lg animate-bounce">
+                            ✨
+                        </div>
                     </div>
-                    <div class="text-center">
-                        <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">MedicareLM Synthesizing Analysis</h4>
-                        <p class="text-xs text-slate-500 mt-1" id="global-loader-message">Consulting medical intelligence vectors...</p>
+                    <div class="text-center px-6">
+                        <h4 class="font-extrabold text-slate-800 dark:text-slate-100 text-base tracking-tight">Synthesizing Medical Knowledge Vectors</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto leading-relaxed" id="global-loader-message">Consulting multi-agent clinical variables...</p>
                     </div>
                 </div>
 
@@ -345,18 +406,18 @@
                     <!-- Banner Info Header Section -->
                     <div class="flex justify-between items-center">
                         <div>
-                            <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-1">Welcome back, Danielle 👋</h2>
+                            <h2 class="text-2xl font-bold text-slate-900 tracking-tight mb-1">Welcome back, <span id="display-user-name">Danielle</span> 👋</h2>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-slate-400">Your health parameters are compiled & synchronized.</span>
-                                <span class="text-[9px] font-bold px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full flex items-center gap-1 select-none">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span> Gemini 2.5 Active
+                                <span class="text-[9px] font-bold px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full flex items-center gap-1 select-none animate-pulse">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Gemini 2.5 Fully Active
                                 </span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Hub Workspace Quick Access Grid -->
-                    <div class="grid grid-cols-4 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div onclick="switchView('story')" class="bg-white p-5 rounded-3xl border border-slate-100 card-shadow hover:border-blue-400 cursor-pointer transition-all duration-300 flex flex-col justify-between h-40 group">
                             <div class="w-9 h-9 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center text-base group-hover:scale-110 transition-transform">❤️</div>
                             <div>
@@ -397,7 +458,7 @@
                         </div>
                         
                         <!-- Timeline Node Track -->
-                        <div class="relative flex items-center justify-between pt-4">
+                        <div class="relative flex items-center justify-between pt-4 overflow-x-auto min-w-[500px]">
                             <!-- Horizontal line -->
                             <div class="absolute left-4 right-4 h-0.5 bg-slate-100 top-[34px] z-0"></div>
                             
@@ -430,7 +491,7 @@
                     </div>
 
                     <!-- Bottom Grid split: Activity & AI insights -->
-                    <div class="grid grid-cols-2 gap-6" id="dashboard-bottom-grid">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="dashboard-bottom-grid">
                         <div class="bg-white p-6 rounded-3xl border border-slate-100 card-shadow flex flex-col justify-between">
                             <div>
                                 <div class="flex justify-between items-center mb-4">
@@ -461,14 +522,14 @@
                                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
                                     <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span> Proactive AI Insights
                                 </h3>
-                                <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+                                <div class="space-y-3 text-xs text-slate-600 leading-relaxed tex2jax_process">
                                     <div class="flex items-start gap-2">
                                         <span class="text-blue-500 mt-0.5">✦</span>
                                         <span>Blood pressure stabilized beautifully following the Lisinopril daily adjustments.</span>
                                     </div>
                                     <div class="flex items-start gap-2">
                                         <span class="text-blue-500 mt-0.5">✦</span>
-                                        <span>Cholesterol LDL indexes (145 mg/dL) require minor metabolic or dietary refinement.</span>
+                                        <span>Cholesterol LDL indexes ($\text{LDL} = 145\text{ mg/dL}$) require minor metabolic or dietary refinement.</span>
                                     </div>
                                     <div class="flex items-start gap-2">
                                         <span class="text-blue-500 mt-0.5">✦</span>
@@ -505,7 +566,7 @@
                     </div>
                     
                     <div class="bg-slate-50 rounded-3xl border border-slate-200/60 p-6 shadow-inner overflow-auto max-h-[60vh] flex justify-center">
-                        <div id="pdf-container-zoom" class="bg-white border border-slate-300/40 p-8 rounded-2xl w-full shadow-lg space-y-6 transition-all duration-300 origin-top">
+                        <div id="pdf-container-zoom" class="bg-white border border-slate-300/40 p-8 rounded-2xl w-full shadow-lg space-y-6 transition-all duration-300 origin-top tex2jax_process">
                             <div class="flex justify-between items-start border-b border-slate-100 pb-4">
                                 <div>
                                     <h2 class="text-lg font-black text-blue-900 tracking-wide">Diagnostic Medical Ingestion</h2>
@@ -545,7 +606,7 @@
                         <button onclick="switchView('dashboard')" class="text-xs bg-slate-100 hover:bg-slate-200 font-bold text-slate-600 px-4 py-2 rounded-xl transition">Home Dashboard</button>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Daily steps metric -->
                         <div class="bg-white p-6 rounded-3xl border border-slate-100 card-shadow">
                             <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Daily Steps Overview</h4>
@@ -689,14 +750,14 @@
                         </div>
                         <button onclick="switchView('dashboard')" class="text-xs bg-slate-100 hover:bg-slate-200 font-bold text-slate-600 px-4 py-2 rounded-xl transition">Back</button>
                     </div>
-                    <div class="bg-white p-6 border rounded-3xl card-shadow space-y-5">
+                    <div class="bg-white p-6 border rounded-3xl card-shadow space-y-5 tex2jax_process">
                         <div class="border-l-4 border-blue-500 pl-4 py-1">
                             <h4 class="text-xs font-bold text-slate-800">June 24, 2026 - Comprehensive Clinical Integration</h4>
                             <p class="text-[11px] text-slate-500 mt-1">Multi-source diagnostic summaries fully ingested and synchronized. Step metrics integrated via smartwatch syncing protocols.</p>
                         </div>
                         <div class="border-l-4 border-purple-500 pl-4 py-1">
                             <h4 class="text-xs font-bold text-slate-800">March 2023 - Medication Adjustment</h4>
-                            <p class="text-[11px] text-slate-500 mt-1">Initiated Lisinopril 10mg regimen daily for pressure stabilization. Tolerance reported optimal.</p>
+                            <p class="text-[11px] text-slate-500 mt-1">Initiated Lisinopril $10\text{ mg}$ regimen daily for pressure stabilization. Tolerance reported optimal.</p>
                         </div>
                         <div class="border-l-4 border-emerald-500 pl-4 py-1">
                             <h4 class="text-xs font-bold text-slate-800">January 2023 - Blood Test</h4>
@@ -801,8 +862,8 @@
                     <h3 class="text-xs font-bold text-slate-800">Ask MedicareLM</h3>
                 </div>
                 <!-- Chat history bubble -->
-                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto" id="conversation-bubble">
-                    Hello Danielle! I have analyzed your uploaded medical records. Ask me anything about your lab results, image reports, or medical history.
+                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600 leading-relaxed max-h-32 overflow-y-auto tex2jax_process" id="conversation-bubble">
+                    Hello! I have analyzed your uploaded medical records. Ask me anything about your lab results, image reports, or medical history.
                 </div>
                 <div class="relative">
                     <input type="text" id="chatInput" onkeydown="if(event.key==='Enter') executeChatPrompt()" placeholder="Ask a health question..." class="w-full text-xs px-3.5 py-2.5 pr-10 rounded-xl border border-slate-200 outline-none focus:border-blue-500 bg-slate-50 text-slate-700">
@@ -845,6 +906,26 @@
         </div>
     </div>
 
+    <!-- Welcome Modal (Replacing Browser Prompt) -->
+    <div id="welcomeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full border border-slate-200 shadow-2xl space-y-5">
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl mx-auto">
+                👋
+            </div>
+            <div class="text-center">
+                <h2 class="text-lg font-bold text-slate-900">Welcome to MedicareLM</h2>
+                <p class="text-xs text-slate-400 mt-1">Your secure interactive healthcare space.</p>
+            </div>
+            <div class="space-y-3">
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Your Name</label>
+                <input type="text" id="welcomeNameInput" class="w-full text-xs px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-blue-500 bg-slate-50 text-slate-700" placeholder="Danielle Johnson">
+            </div>
+            <button onclick="submitWelcomeName()" class="w-full py-3 bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-100">
+                Enter Dashboard
+            </button>
+        </div>
+    </div>
+
     <!-- JavaScript Execution Engine -->
     <script>
         // System Config state
@@ -865,34 +946,98 @@
         
         let generatedReports = [];
 
-        // Ingestion file data store
+        // Dynamic High-Fidelity base64 SVGs to ensure images NEVER load with broken icons or lines
+        const dermatologicalScanSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300' style='background:%23FFF5F5;'><rect width='400' height='300' fill='none'/><circle cx='150' cy='130' r='45' fill='%23EF4444' opacity='0.22' filter='blur(12px)'/><circle cx='180' cy='150' r='55' fill='%23EF4444' opacity='0.18' filter='blur(10px)'/><path d='M20,150 Q100,100 200,200 T380,120' fill='none' stroke='%23F87171' stroke-width='2.5' opacity='0.4' stroke-dasharray='5,5'/><text x='50%' y='45%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' font-weight='800' fill='%23991B1B'>Dermatitis Layer Analysis</text><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='11' font-weight='500' fill='%23B91C1C'>Showing erythematous skin layers</text><rect x='15' y='15' width='370' height='270' fill='none' stroke='%23FCA5A5' stroke-width='1.5' stroke-dasharray='4'/></svg>";
+        
+        const chestXraySvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300' style='background:%23F1F5F9;'><rect width='400' height='300' fill='none'/><path d='M140,50 C140,150 110,230 110,250 C150,250 180,210 180,170 C180,210 210,250 250,250 C250,230 220,150 220,50' fill='none' stroke='%2364748B' stroke-width='3' opacity='0.35'/><path d='M100,80 Q200,50 300,80 M100,120 Q200,90 300,120 M100,160 Q200,130 300,160' fill='none' stroke='%2394A3B8' stroke-width='1.5' opacity='0.4'/><circle cx='200' cy='150' r='50' fill='%233B82F6' opacity='0.08' filter='blur(15px)'/><text x='50%' y='45%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' font-weight='800' fill='%231E293B'>Chest Radiology PA View</text><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='11' font-weight='500' fill='%23475569'>Lungs outline, perihilar structures clear</text><rect x='15' y='15' width='370' height='270' fill='none' stroke='%23CBD5E1' stroke-width='1.5' stroke-dasharray='4'/></svg>";
+        
+        const ecgSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300' style='background:%23ECFDF5;'><rect width='400' height='300' fill='none'/><path d='M 10,150 L 80,150 L 90,130 L 100,170 L 110,150 L 170,150 L 180,70 L 195,240 L 210,150 L 270,150 L 280,135 L 290,160 L 300,150 L 390,150' fill='none' stroke='%2310B981' stroke-width='2.5' stroke-linejoin='round' stroke-linecap='round'/><text x='50%' y='35%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' font-weight='800' fill='%23065F46'>ECG Waves Telemetry</text><text x='50%' y='45%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='11' font-weight='500' fill='%23047857'>Sinus Rhythm verified at 72 bpm</text><rect x='15' y='15' width='370' height='270' fill='none' stroke='%23A7F3D0' stroke-width='1.5' stroke-dasharray='4'/></svg>";
+
+        // Ingestion file data store with high fidelity image mocks built-in
         const filesStore = {
             pdf: [
-                { name: "Blood_Test_Result_For_Emma.pdf", content: `<h3>Complete Blood Count (CBC)</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr></thead><tbody><tr><td>WBC</td><td>6.2</td><td>4.0 - 10.0</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>RBC</td><td>4.35</td><td>3.8 - 5.2</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>Hemoglobin</td><td>12.1</td><td>12.0 - 15.5</td><td class='text-emerald-600 font-bold'>Normal</td></tr></tbody></table><br/><h3>Lipid Panel Profile</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Biomarker</th><th>Value</th><th>Target</th><th>Flag</th></tr></thead><tbody><tr><td>Total Cholesterol</td><td>214 mg/dL</td><td>&lt; 200</td><td class='text-red-500 font-bold'>High</td></tr><tr><td>HDL Cholesterol</td><td>48 mg/dL</td><td>&gt; 50</td><td class='text-red-500 font-bold'>Low</td></tr><tr><td>LDL Cholesterol</td><td>145 mg/dL</td><td>&lt; 100</td><td class='text-red-500 font-bold'>High</td></tr></tbody></table>` },
-                { name: "Chest_XRay_Clinical_Report.pdf", content: `<h3>Radiology Clinical Evaluation Report</h3><div class='p-4 bg-slate-50 rounded-xl border border-slate-200 mt-2'><p class='font-bold text-slate-800'>CHEST PA & LATERAL EXAMINATION</p><p class='text-[10px] text-slate-500 mt-1'>INDICATION: Persistent dry cough in a 3-year-old male child.</p><p class='text-[10px] text-slate-500 mt-2'>FINDINGS:<br/>Perihilar bronchial thickening noted bilaterally. Hyperinflation noted. Super added bronchopneumonic changes. Patchy opacification seen in the right cardiophrenic space. No peripheral lobar consolidations. The heart shadow is normal in size. No features of hilar or mediastinal lymphadenopathy. No displacement of the trachea. Aortic arch is normal in appearance. No abnormalities of the bones or superficial soft tissues seen.</p></div>` }
+                { 
+                    name: "Blood_Test_Result_For_Emma.pdf", 
+                    content: `<h3>Complete Blood Count (CBC)</h3>
+                    <table class='w-full border-collapse border border-slate-200 text-xs mt-2'>
+                        <thead>
+                            <tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>WBC</td><td>$6.2 \times 10^3/\mu\text{L}$</td><td>$4.0 - 10.0$</td><td class='text-emerald-600 font-bold'>Normal</td></tr>
+                            <tr><td>RBC</td><td>$4.35 \times 10^6/\mu\text{L}$</td><td>$3.8 - 5.2$</td><td class='text-emerald-600 font-bold'>Normal</td></tr>
+                            <tr><td>Hemoglobin</td><td>$12.1 \text{ g/dL}$</td><td>$12.0 - 15.5$</td><td class='text-emerald-600 font-bold'>Normal</td></tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                    <h3>Lipid Panel Profile</h3>
+                    <table class='w-full border-collapse border border-slate-200 text-xs mt-2'>
+                        <thead>
+                            <tr class='bg-slate-50'><th>Biomarker</th><th>Value</th><th>Target</th><th>Flag</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Total Cholesterol</td><td>$214 \text{ mg/dL}$</td><td>$< 200$</td><td class='text-red-500 font-bold'>High</td></tr>
+                            <tr><td>HDL Cholesterol</td><td>$48 \text{ mg/dL}$</td><td>$> 50$</td><td class='text-red-500 font-bold'>Low</td></tr>
+                            <tr><td>LDL Cholesterol</td><td>$145 \text{ mg/dL}$</td><td>$< 100$</td><td class='text-red-500 font-bold'>High</td></tr>
+                        </tbody>
+                    </table>` 
+                },
+                { 
+                    name: "Chest_XRay_Clinical_Report.pdf", 
+                    content: `<h3>Radiology Clinical Evaluation Report</h3>
+                    <div class='p-4 bg-slate-50 rounded-xl border border-slate-200 mt-2'>
+                        <p class='font-bold text-slate-800'>CHEST PA & LATERAL EXAMINATION</p>
+                        <p class='text-[10px] text-slate-500 mt-1'>INDICATION: Persistent dry cough in clinical subject.</p>
+                        <p class='text-[10px] text-slate-500 mt-2'>FINDINGS:<br/>
+                        Perihilar bronchial thickening noted bilaterally. Hyperinflation noted. Super added bronchopneumonic changes. Patchy opacification seen in the right cardiophrenic space. No peripheral lobar consolidations. The heart shadow is normal in size. No features of hilar or mediastinal lymphadenopathy. No displacement of the trachea. Aortic arch is normal in appearance. No abnormalities of the bones or superficial soft tissues seen.</p>
+                    </div>` 
+                }
             ],
             labs: [
-                { name: "Comprehensive_Metabolic_Panel.pdf", content: `<h3>Comprehensive Metabolic Panel</h3><table class='w-full border-collapse border border-slate-200 text-xs mt-2'><thead><tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr></thead><tbody><tr><td>Glucose</td><td>94 mg/dL</td><td>65 - 99</td><td class='text-emerald-600 font-bold'>Normal</td></tr><tr><td>Sodium</td><td>139 mmol/L</td><td>135 - 145</td><td class='text-emerald-600 font-bold'>Normal</td></tr></tbody></table>` }
+                { 
+                    name: "Comprehensive_Metabolic_Panel.pdf", 
+                    content: `<h3>Comprehensive Metabolic Panel</h3>
+                    <table class='w-full border-collapse border border-slate-200 text-xs mt-2'>
+                        <thead>
+                            <tr class='bg-slate-50'><th>Test</th><th>Result</th><th>Range</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Glucose</td><td>$94 \text{ mg/dL}$</td><td>$65 - 99$</td><td class='text-emerald-600 font-bold'>Normal</td></tr>
+                            <tr><td>Sodium</td><td>$139 \text{ mmol/L}$</td><td>$135 - 145$</td><td class='text-emerald-600 font-bold'>Normal</td></tr>
+                        </tbody>
+                    </table>` 
+                }
             ],
             images: [
                 {
-                    name: "1000018769.png",
-                    url: "1000018769.png"
+                    name: "Dermatological_Skin_Scan.png",
+                    url: dermatologicalScanSvg
                 },
                 {
-                    name: "1000018768.png",
-                    url: "1000018768.png"
+                    name: "Chest_XRay_Digital_View.png",
+                    url: chestXraySvg
                 },
                 {
-                    name: "1000018771.jpg",
-                    url: "1000018771.jpg"
+                    name: "ECG_Waveform_Telemetry.jpg",
+                    url: ecgSvg
                 }
             ],
             rx: [
-                { name: "Lisinopril_Prescription.pdf", content: `<h3>Active Prescription Profile</h3><div class='p-4 bg-yellow-50 rounded-lg border border-yellow-100 mt-2'><p class='font-bold text-slate-800'>Lisinopril 10mg Daily</p><p class='text-[10px] text-slate-500'>Directions: Take 1 tablet daily by mouth in the morning.</p></div>` }
+                { 
+                    name: "Lisinopril_Prescription.pdf", 
+                    content: `<h3>Active Prescription Profile</h3>
+                    <div class='p-4 bg-yellow-50 rounded-lg border border-yellow-100 mt-2'>
+                        <p class='font-bold text-slate-800'>Lisinopril $10\text{ mg}$ Daily</p>
+                        <p class='text-[10px] text-slate-500'>Directions: Take 1 tablet daily by mouth in the morning.</p>
+                    </div>` 
+                }
             ],
             notes: [
-                { name: "Cardiology_Consult_Notes.pdf", content: `<h3>Cardiology Consultation Notes</h3><p class='text-xs mt-2'>Patient reports normal exercise tolerances. Heart rate variables stabilizing within healthy bounds. Active smartwatch telemetry tracking recommended.</p>` }
+                { 
+                    name: "Cardiology_Consult_Notes.pdf", 
+                    content: `<h3>Cardiology Consultation Notes</h3>
+                    <p class='text-xs mt-2'>Patient reports normal exercise tolerances. Heart rate variables stabilizing within healthy bounds. Active smartwatch telemetry tracking recommended.</p>` 
+                }
             ],
             links: []
         };
@@ -901,24 +1046,32 @@
             "Blood_Test_Result_For_Emma.pdf": true,
             "Chest_XRay_Clinical_Report.pdf": false,
             "Comprehensive_Metabolic_Panel.pdf": false,
-            "1000018769.png": false,
-            "1000018768.png": false,
-            "1000018771.jpg": false,
+            "Dermatological_Skin_Scan.png": false,
+            "Chest_XRay_Digital_View.png": false,
+            "ECG_Waveform_Telemetry.jpg": false,
             "Lisinopril_Prescription.pdf": false,
             "Cardiology_Consult_Notes.pdf": false
         };
 
-        // Fallback generator if image fails to load due to iframe CORS or sandbox network blocks
+        // Fallback generator for images
         function handleImageError(imgElement) {
-            console.warn("Medical image failed to load, applying clinical visualization fallback.");
-            imgElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300' style='background:%23FFF5F5;'><rect width='400' height='300' fill='%23FFF5F5'/><circle cx='130' cy='150' r='50' fill='%23F87171' opacity='0.3' filter='blur(10px)'/><circle cx='180' cy='130' r='40' fill='%23EF4444' opacity='0.25' filter='blur(8px)'/><circle cx='230' cy='160' r='60' fill='%23F87171' opacity='0.2' filter='blur(12px)'/><text x='50%' y='45%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' font-weight='bold' fill='%23991B1B'>Dermatitis / Eczema Case Canvas</text><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='11' fill='%23B91C1C'>Showing structural skin layer erythematous patches</text><rect x='20' y='20' width='360' height='260' fill='none' stroke='%23FCA5A5' stroke-width='2' stroke-dasharray='4'/></svg>";
+            const imageName = imgElement.alt || "Scan";
+            if (imageName.includes("Skin")) {
+                imgElement.src = dermatologicalScanSvg;
+            } else if (imageName.includes("Chest")) {
+                imgElement.src = chestXraySvg;
+            } else if (imageName.includes("ECG")) {
+                imgElement.src = ecgSvg;
+            } else {
+                imgElement.src = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300' style='background:%23F1F5F9;'><rect width='400' height='300' fill='none'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' fill='%2364748B'>${imageName}</text></svg>`;
+            }
         }
 
         // Custom non-obstructive overlay toast system
         function showToast(message, type = "info") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `p-4 rounded-2xl text-xs font-semibold shadow-xl transition-all duration-300 transform translate-y-2 opacity-0 text-white pointer-events-none flex items-center justify-between gap-3 min-w-[250px] max-w-sm`;
+            toast.className = `p-4 rounded-2xl text-xs font-semibold shadow-xl transition-all duration-300 transform translate-y-2 opacity-0 text-white pointer-events-none flex items-center justify-between gap-3 min-w-[250px] max-w-sm z-50`;
             
             if (type === "success") {
                 toast.classList.add('bg-emerald-600');
@@ -932,7 +1085,7 @@
             
             toast.innerHTML = `
                 <span>${message}</span>
-                <button onclick="this.parentElement.remove()" class="text-white font-bold opacity-80 hover:opacity-100">✕</button>
+                <button onclick="this.parentElement.remove()" class="text-white font-bold opacity-80 hover:opacity-100 pointer-events-auto">✕</button>
             `;
             
             container.appendChild(toast);
@@ -963,6 +1116,25 @@
             // Scroll container back to top
             const scrollContainer = document.querySelector('.flex-1.overflow-y-auto');
             if (scrollContainer) scrollContainer.scrollTop = 0;
+        }
+
+        // Custom Welcome Modal submission
+        function submitWelcomeName() {
+            const nameInput = document.getElementById('welcomeNameInput').value.trim();
+            const finalName = nameInput || "Danielle Johnson";
+            
+            localStorage.setItem('medicare_user', finalName);
+            document.getElementById('display-user-name').innerText = finalName;
+            
+            // Extract initials
+            const initials = finalName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('user-initials').innerText = initials;
+            
+            // Hide welcome modal
+            document.getElementById('welcomeModal').classList.add('hidden');
+            showToast(`Welcome ${finalName} to MedicareLM`, "success");
+            
+            auditLog('Application Opened');
         }
 
         // Click a node in the timeline
@@ -1191,7 +1363,7 @@
             userApiKey = keyVal;
             saveGeminiKey(keyVal);
             badge.innerText = "Active";
-            badge.className = "text-[9px] font-semibold text-emerald-600";
+            badge.className = "text-[9px] font-bold text-white bg-white/20 px-2 py-0.5 rounded-full";
             showToast("Gemini API Key saved locally.", "success");
             testGeminiConnection();
         }
@@ -1236,6 +1408,11 @@
             if (found) text = found.content;
             document.getElementById('doc-render-body').innerHTML = DOMPurify.sanitize(text);
             switchView('doc');
+            
+            // Re-render MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
         }
 
         // Display medical image on canvas
@@ -1243,7 +1420,10 @@
             lastSelectedFile = name;
             activeDeletionTarget = { type: 'source', name: name };
             document.getElementById('active-image-title').innerText = name;
-            document.getElementById('med-image-canvas').src = url;
+            
+            const canvasImg = document.getElementById('med-image-canvas');
+            canvasImg.alt = name;
+            canvasImg.src = url;
             switchView('image');
         }
 
@@ -1303,7 +1483,6 @@
         async function fetchGeminiAPI(payload) {
             const targetKey = userApiKey || getGeminiKey() || "";
             
-            // Waterfall of fallback models from standard preview down to stable production models
             const models = [
                 "gemini-2.5-flash-preview-09-2025",
                 "gemini-2.5-flash",
@@ -1327,17 +1506,14 @@
                         
                         const data = await response.json();
                         
-                        // Immediately catch model incompatibilities, v1beta structural blocks, or missing credentials
                         if (!response.ok) {
                             const errMessage = data?.error?.message || "";
                             
-                            // If model isn't supported, immediately break to try the next model rather than retrying
-                            if (response.status === 404 || errMessage.toLowerCase().includes("not found") || errMessage.toLowerCase().includes("not supported") || errMessage.toLowerCase().includes("not_found")) {
+                            if (response.status === 404 || errMessage.toLowerCase().includes("not found") || errMessage.toLowerCase().includes("not supported")) {
                                 lastError = new Error(errMessage || `Model ${model} not supported.`);
                                 break; 
                             }
                             
-                            // Handle retryable status codes (e.g., rate limits or backend timeouts)
                             if (response.status === 429 || response.status >= 500) {
                                 await new Promise(resolve => setTimeout(resolve, delay));
                                 delay *= 2;
@@ -1347,11 +1523,9 @@
                             throw new Error(errMessage || "Gemini API Request Failed");
                         }
                         
-                        // Successfully completed call
                         return data;
                     } catch (err) {
                         lastError = err;
-                        // Skip wait if we broke the inner loop because of a model mismatch
                         if (err.message && (err.message.toLowerCase().includes("not found") || err.message.toLowerCase().includes("not supported"))) {
                             break;
                         }
@@ -1452,8 +1626,7 @@
                     reader.readAsDataURL(blob);
                 });
             } catch (e) {
-                // Return a clean inline SVG visualization base64 of skin dermatitis so image processing has direct access
-                return "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiB2aWV3Qm94PSIwIDAgNDAwIDMwMCIgc3R5bGU9ImJhY2tncm91bmQ6I0ZGRjVGNSI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNGRkY1RjUiLz48Y2lyY2xlIGN4PSIxMzAiIGN5PSIxNTAiIHI9IjUwIiBmaWxsPSIjRjg3MTcxIiBvcGFjaXR5PSIwLjMiIGZpbHRlcj0iYmx1cigxMHB4KSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5MUIxQiI+U2tpbiBEZXJtYXRpdGlzIFNhbXBsZTwvdGV4dD48L3N2Zz4=";
+                return dermatologicalScanSvg;
             }
         }
 
@@ -1498,7 +1671,6 @@
         async function analyzeSelectedDocuments(toolName) {
             let checkedDocs = Object.keys(selectedSources).filter(name => selectedSources[name]);
 
-            // Auto-fallback to viewed document/image if none are specifically checked
             if (checkedDocs.length === 0) {
                 if (lastSelectedFile) {
                     checkedDocs = [lastSelectedFile];
@@ -1541,33 +1713,32 @@
                     if (img) checkedImages.push(docName);
                 });
 
-                // Tailor custom instructions/prompts based on the specific AI tool selected
                 let systemPrompt = "";
                 let userPrompt = "";
 
                 switch (toolName) {
                     case "Health Summary":
-                        systemPrompt = "You are MedicareLM's premium health synthesist. Create a high-fidelity Executive Health Summary compiling all checked clinical assets into a structured wellness passport. Always format all mathematical formulas, health metrics, and ranges using standard LaTeX style delimiters ($...$ for inline and $$...$$ for block expressions).";
+                        systemPrompt = "You are MedicareLM's premium health synthesist. Create a high-fidelity Executive Health Summary compiling all checked clinical assets into a structured wellness passport. Always format all mathematical formulas, health metrics, and ranges using standard LaTeX style delimiters ($...$ for inline and $$...$$ for block expressions). Avoid any markdown raw formatting like unnecessary slashes or backslashes. Use clean HTML structure.";
                         userPrompt = `Please synthesize an overall Health Summary based on the provided files. Structure your response with an Executive Summary, a chronological timeline of clinical events, an active medication tracker, and general health warnings.`;
                         break;
                     case "Explainer":
-                        systemPrompt = "You are MedicareLM's premium medical explainer AI. Your specialty is translating complicated clinical findings into highly comforting, easily understood layperson language using visual analogies (like drinking straws or balloons). Format all clinical indicators and math expressions using LaTeX style delimiters ($...$).";
+                        systemPrompt = "You are MedicareLM's premium medical explainer AI. Your specialty is translating complicated clinical findings into highly comforting, easily understood layperson language using visual analogies (like drinking straws or balloons). Format all clinical indicators and math expressions using LaTeX style delimiters ($...$). Ensure no asterisks or raw markdown symbols leak into the final text.";
                         userPrompt = `Analyze the medical data and provide a patient-friendly Clinical Explainer. Translate all complex terminology (e.g., 'bronchial thickening', 'LDL values') into simple analogies.`;
                         break;
                     case "Health Map":
-                        systemPrompt = "You are MedicareLM's biomedical relational mapping expert. Analyze how different organs, habits, and clinical indicators correlate with one another. Format correlation scores and metrics in standard LaTeX notation ($...$).";
+                        systemPrompt = "You are MedicareLM's biomedical relational mapping expert. Analyze how different organs, habits, and clinical indicators correlate with one another. Format correlation scores and metrics in standard LaTeX notation ($...$). Cleanly present output without raw formatting artifacts.";
                         userPrompt = `Create a Biological Correlational Map. Trace how factors like sleep, Lisinopril, hydration, steps, and LDL cholesterol interact with each other based on the selected records.`;
                         break;
                     case "Trends & Analytics":
-                        systemPrompt = "You are MedicareLM's smartwatch telemetry analytics officer. You correlate clinical findings with daily wearable biometrics (steps, blood pressure, sleep targets). Use LaTeX formatting for statistical correlations or equations ($...$).";
+                        systemPrompt = "You are MedicareLM's smartwatch telemetry analytics officer. You correlate clinical findings with daily wearable biometrics (steps, blood pressure, sleep targets). Use LaTeX formatting for statistical correlations or equations ($...$). Cleanly present output without raw formatting artifacts.";
                         userPrompt = `Examine the wearable metrics and clinical records. Create a Trends & Analytics report showing the correlation between patient's daily physical activity/sleep habits and clinical health.`;
                         break;
                     case "Doctor Visit Prep":
-                        systemPrompt = "You are MedicareLM's physician preparation expert. Help the patient prepare for their upcoming doctor visit by formulating highly optimized, prioritized medical questions. Format reference values and medical figures in LaTeX ($...$).";
+                        systemPrompt = "You are MedicareLM's physician preparation expert. Help the patient prepare for their upcoming doctor visit by formulating highly optimized, prioritized medical questions. Format reference values and medical figures in LaTeX ($...$). Cleanly present output without raw formatting artifacts.";
                         userPrompt = `Based on the provided medical findings, compile a Doctor Visit Prep guide. Include a list of prioritized clinical questions Danielle should ask her physician, checklist milestones, and key symptoms to mention.`;
                         break;
                     case "Image Analyzer":
-                        systemPrompt = "You are MedicareLM's clinical imaging expert. Perform an in-depth observational analysis of the provided medical image assets or visual descriptions. Always format specific size, area, or color metrics in LaTeX ($...$).";
+                        systemPrompt = "You are MedicareLM's clinical imaging expert. Perform an in-depth observational analysis of the provided medical image assets or visual descriptions. Always format specific size, area, or color metrics in LaTeX ($...$). Cleanly present output without raw formatting artifacts.";
                         userPrompt = `Perform a detailed Image Analyzer report. Inspect any uploaded clinical images (like skin dermatitis or chest x-rays) or text clinical observations and provide detailed diagnostic breakdowns of margins, colors, alignments, and potential indications.`;
                         break;
                     default:
@@ -1575,7 +1746,6 @@
                         userPrompt = `Analyze the provided medical data and compile a structured clinical report.`;
                 }
 
-                // If no clinical data is in the text, use fallback placeholder so Gemini has a base context
                 if (!documentText.trim() && checkedImages.length === 0) {
                     documentText = "[Context Profile: Patient Danielle Johnson | Smartwatch Sync parameters active]";
                 }
@@ -1596,11 +1766,12 @@ Create:
 
 Medical Data:
 ${documentText}
+
+Ensure clean format without leaking raw asterisks, raw backslashes, or escaped brackets. Always use standard HTML or clean text output.
 `;
 
                 const parts = [{ text: promptText }];
 
-                // Retrieve base64 image streams dynamically if images are selected
                 for (const imgName of checkedImages) {
                     const foundImg = filesStore.images.find(x => x.name === imgName);
                     if (foundImg) {
@@ -1642,11 +1813,9 @@ ${documentText}
                     }
                 };
 
-                // Unified fetch wrapper to handle retries and Exponential Backoff perfectly
                 const data = await fetchGeminiAPI(payload);
                 const result = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
 
-                // Transform and securely sanitize HTML
                 const formattedHTML = DOMPurify.sanitize(parseMarkdownToHTML(result));
 
                 const reportId = Date.now();
@@ -1662,7 +1831,6 @@ ${documentText}
                 updateGeneratedResultsUI();
                 activeDeletionTarget = { type: 'result', id: reportId };
 
-                // HIDE LOADER AND TRANSITION ONLY NOW
                 if (loaderOverlay) loaderOverlay.classList.add('hidden');
                 switchView('result');
 
@@ -1677,15 +1845,20 @@ ${documentText}
                             <button onclick="downloadPDFBriefing(${reportId})" class="bg-[#2563EB] text-white font-bold text-[10px] uppercase px-4 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100/50">Export Report</button>
                         </div>
                         
-                        <div class="p-8 bg-white border border-slate-200/60 rounded-3xl card-shadow prose max-w-none text-slate-700">
+                        <div class="p-8 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl card-shadow prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-200 tex2jax_process leading-relaxed">
                             ${formattedHTML}
                         </div>
 
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-[10px] text-slate-400 italic">
+                        <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-[10px] text-slate-400 italic">
                             MedicareLM medical AI agent outputs. Always consult a physician for official clinical decisions.
                         </div>
                     </div>
                 `;
+
+                // Re-compile MathJax Equations perfectly
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
 
                 showToast("Gemini analysis complete", "success");
             } catch(err) {
@@ -1706,17 +1879,38 @@ ${documentText}
             }
         }
 
-        // Convert Markdown styles to Premium HTML templates
+        // Robust Clean Markdown Parser - Prevents ugly asterisks, slashes, and stars
         function parseMarkdownToHTML(text) {
-            return text
-                .replace(/^# (.*$)/gim, '<h1 class="text-xl font-extrabold text-[#2563EB] mt-6 mb-3 border-b pb-2">$1</h1>')
-                .replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-slate-800 mt-4 mb-2">$1</h2>')
-                .replace(/^### (.*$)/gim, '<h3 class="text-xs font-bold text-slate-600 mt-3 mb-1 uppercase tracking-wider">$1</h3>')
-                .replace(/^\- (.*$)/gim, '<li class="ml-4 list-disc text-xs text-slate-600 my-1">$1</li>')
-                .replace(/\n/g, '<br/>');
+            let processed = text;
+            
+            // Fix double backslashes which leak in Math output
+            processed = processed.replace(/\\\\\s*/g, '\\ ');
+            
+            // Parse headers
+            processed = processed.replace(/^# (.*$)/gim, '<h1 class="text-xl font-extrabold text-[#2563EB] mt-6 mb-3 border-b pb-2">$1</h1>');
+            processed = processed.replace(/^## (.*$)/gim, '<h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mt-4 mb-2">$1</h2>');
+            processed = processed.replace(/^### (.*$)/gim, '<h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 mt-3 mb-1 uppercase tracking-wider">$1</h3>');
+            
+            // Parse bold (**text** or __text__)
+            processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            processed = processed.replace(/__(.*?)__/g, '<strong>$1</strong>');
+            
+            // Parse italic (*text* or _text_)
+            processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Parse unordered lists (- item or * item)
+            processed = processed.replace(/^\s*-\s+(.*$)/gim, '<li class="ml-4 list-disc text-xs text-slate-600 dark:text-slate-300 my-1">$1</li>');
+            
+            // Replace escaped slashes and residual bad markdown artifacts
+            processed = processed.replace(/\\([*_{}[\]()#+\-.!])/g, '$1');
+            
+            // Parse standard paragraph breaks securely without leaking double spaces or symbols
+            processed = processed.replace(/\n/g, '<br/>');
+
+            return processed;
         }
 
-        // Draw saved generated reports (Safely programmatically creating events to avoid DOMPurify stripping actions)
+        // Draw saved generated reports
         function updateGeneratedResultsUI() {
             const list = document.getElementById('results-list');
             const badge = document.getElementById('results-count-badge');
@@ -1762,11 +1956,15 @@ ${documentText}
                             <button onclick="downloadPDFBriefing(${report.id})" class="bg-[#2563EB] text-white font-bold text-[10px] uppercase px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">Export Report</button>
                         </div>
                         
-                        <div class="p-8 bg-white border border-slate-200/60 rounded-3xl card-shadow prose max-w-none text-slate-700">
+                        <div class="p-8 bg-white border border-slate-200/60 rounded-3xl card-shadow prose max-w-none text-slate-700 tex2jax_process">
                             ${report.htmlContent}
                         </div>
                     </div>
                 `;
+
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
             }
         }
 
@@ -1792,7 +1990,6 @@ ${documentText}
                 return;
             }
             
-            // Strip HTML tags to make it a clean text report
             const tempDiv = document.createElement("div");
             tempDiv.innerHTML = report.htmlContent;
             const plainText = tempDiv.innerText || tempDiv.textContent || "";
@@ -1825,7 +2022,6 @@ ${documentText}
             const targetKey = userApiKey || getGeminiKey();
             if (targetKey) {
                 try {
-                    // Call Gemini API with grounding search query simulated prompt
                     const payload = {
                         contents: [{ parts: [{ text: query }] }],
                         tools: [{ "google_search": {} }]
@@ -1833,7 +2029,6 @@ ${documentText}
                     const resJson = await fetchGeminiAPI(payload);
                     const aiRawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text || "";
                     
-                    // Retrieve Grounding Metadata dynamically!
                     const attributions = resJson.candidates?.[0]?.groundingMetadata?.groundingAttributions || [];
                     let linksHTML = attributions.map((a, i) => `
                         <div class="p-3 bg-blue-50/50 border border-blue-100 rounded-xl flex justify-between items-center text-xs">
@@ -1849,7 +2044,7 @@ ${documentText}
                     `).join("");
 
                     container.innerHTML = DOMPurify.sanitize(`
-                        <div class="space-y-6 text-left pb-16">
+                        <div class="space-y-6 text-left pb-16 tex2jax_process">
                             <div class="border-b border-slate-100 pb-4">
                                 <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight">Biomedical Journal References</h3>
                                 <p class="text-xs text-slate-400 mt-1">Grounding results matching query "${query}"</p>
@@ -1862,6 +2057,10 @@ ${documentText}
                             ${linksHTML.length > 0 ? `<div class="space-y-2 mt-4"><h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Grounding Sources</h4>${linksHTML}</div>` : ''}
                         </div>
                     `);
+
+                    if (window.MathJax) {
+                        MathJax.typesetPromise();
+                    }
                 } catch (e) {
                     renderMockSearchUI(query);
                 }
@@ -1903,7 +2102,7 @@ ${documentText}
             showToast("Saved journal article to Sources directory!", "success");
         }
 
-        // Select and Copy url clipboard helper
+        // Select and Copy url clipboard helper using fallback standard
         function copyToClipboard(elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
@@ -1965,11 +2164,17 @@ ${documentText}
             if (targetKey) {
                 try {
                     const payload = {
-                        contents: [{ parts: [{ text: `DANIELLA ASKS: "${prompt}". Respond professionally with clear clinical focus based on the patient history: LDL (145), Cholesterol (214), Sleep (7.5h), BP (118/76), Lisinopril 10mg. Format mathematical expressions using standard LaTeX $ delimiters.` }] }]
+                        contents: [{ parts: [{ text: `Respond professionally with clear clinical focus based on patient history: LDL ($145\text{ mg/dL}$), Cholesterol ($214\text{ mg/dL}$), Sleep ($7.5\text{h}$), BP ($118/76\text{ mmHg}$), Lisinopril $10\text{ mg}$. Patient asks: "${prompt}". Format formulas and values using standard LaTeX $ delimiters. Keep text totally clean of unparsed asterisks.` }] }]
                     };
                     const resJson = await fetchGeminiAPI(payload);
                     const answer = resJson.candidates?.[0]?.content?.parts?.[0]?.text || "No reply was received.";
-                    bubble.innerHTML = DOMPurify.sanitize(answer.replace(/\n/g, '<br>'));
+                    
+                    const cleanHTML = DOMPurify.sanitize(parseMarkdownToHTML(answer));
+                    bubble.innerHTML = cleanHTML;
+
+                    if (window.MathJax) {
+                        MathJax.typesetPromise();
+                    }
                 } catch (err) {
                     showToast("API timeout. Showing local fallback.", "warning");
                     renderMockChatResponse(prompt);
@@ -1990,11 +2195,15 @@ ${documentText}
             const pLower = prompt.toLowerCase();
             
             if (pLower.includes('lipid') || pLower.includes('cholesterol')) {
-                bubble.innerText = "Danielle, your Cholesterol LDL is 145 mg/dL. The target is below 100 mg/dL. Although your daily step metrics are perfect, reducing dietary saturated fats will assist further stabilization.";
+                bubble.innerHTML = "Danielle, your Cholesterol LDL is $145\\text{ mg/dL}$. The clinical target is below $100\\text{ mg/dL}$. Although your daily step metrics are perfect, reducing dietary saturated fats will assist further stabilization.";
             } else if (pLower.includes('lisinopril') || pLower.includes('medication')) {
-                bubble.innerText = "Lisinopril is an ACE inhibitor used to stabilize systolic pressures. Your current BP is 118/76 mmHg, indicating highly optimal compliance and effectiveness.";
+                bubble.innerHTML = "Lisinopril is an ACE inhibitor used to stabilize systolic pressures. Your current blood pressure is $118/76\\text{ mmHg}$, indicating highly optimal compliance and effectiveness.";
             } else {
-                bubble.innerText = `Based on your records, the health query for "${prompt}" matches standard wellness targets. Let me know if you would like me to draft doctor questions.`;
+                bubble.innerHTML = `Based on your records, the health query for "${prompt}" matches standard wellness targets. Let me know if you would like me to draft doctor questions.`;
+            }
+
+            if (window.MathJax) {
+                MathJax.typesetPromise();
             }
         }
 
@@ -2007,7 +2216,6 @@ ${documentText}
         }
 
         window.onload = function() {
-            // Load saved Gemini API key
             const savedKey = getGeminiKey();
 
             if (savedKey) {
@@ -2019,24 +2227,21 @@ ${documentText}
                 const badge = document.getElementById('key-badge');
                 if (badge) {
                     badge.innerText = "Active";
-                    badge.className = "text-[9px] font-semibold text-emerald-600";
                 }
             }
 
-            // MedicareLM Welcome Experience
-            let userName = localStorage.getItem('medicare_user');
-
-            if (!userName) {
-                userName = prompt("Welcome to MedicareLM!\n\nPlease enter your name:");
-
-                if (userName && userName.trim() !== "") {
-                    localStorage.setItem('medicare_user', userName);
-                } else {
-                    userName = "Guest";
-                }
+            // Load saved user name or open modal
+            const savedUser = localStorage.getItem('medicare_user');
+            if (savedUser) {
+                document.getElementById('display-user-name').innerText = savedUser;
+                const initials = savedUser.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                document.getElementById('user-initials').innerText = initials;
+                document.getElementById('welcomeModal').classList.add('hidden');
+                showToast(`Welcome back, ${savedUser}!`, "success");
+                auditLog('Application Opened');
+            } else {
+                document.getElementById('welcomeModal').classList.remove('hidden');
             }
-
-            showToast(`Welcome ${userName} to MedicareLM`, "success");
 
             updateDirectoryUI();
         };
@@ -2051,7 +2256,6 @@ ${documentText}
             }
 
             try {
-                // Generates test content across audited fallback model list
                 const payload = {
                     contents: [
                         {
@@ -2140,9 +2344,9 @@ ${documentText}
 
         window.addEventListener('load', () => {
             console.log('MedicareLM Security Layer Active');
-            auditLog('Application Opened');
         });
     </script>
 </body>
 </html>
 
+```
