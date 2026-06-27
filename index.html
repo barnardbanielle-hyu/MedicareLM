@@ -152,7 +152,7 @@
             animation: geminiWaves 12s ease infinite;
         }
 
-        /* API Key card shimmer background */
+        /* API Key card & Unified Brand shimmer background */
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -178,7 +178,7 @@
             <div>
                 <!-- Brand logo and name -->
                 <div class="flex items-center gap-3 mb-6 cursor-pointer" onclick="switchView('dashboard')">
-                    <div class="w-10 h-10 bg-[#2563EB] text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-100 font-bold text-lg">
+                    <div class="w-10 h-10 premium-grad-card text-white rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200/50 font-bold text-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                         </svg>
@@ -340,7 +340,14 @@
                 </div>
                 
                 <div class="flex items-center gap-3">
-                    <button onclick="triggerFileInput()" class="bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-100/50 transition">
+                    <!-- Home Button -->
+                    <button onclick="switchView('dashboard')" class="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-400 transition" title="Home Dashboard">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                    </button>
+
+                    <button onclick="triggerFileInput()" class="premium-grad-card text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-200 hover:opacity-90 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                         </svg> Upload
@@ -419,28 +426,28 @@
                     <!-- Hub Workspace Quick Access Grid -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div onclick="switchView('story')" class="bg-white p-5 rounded-3xl border border-slate-100 card-shadow hover:border-blue-400 cursor-pointer transition-all duration-300 flex flex-col justify-between h-40 group">
-                            <div class="w-9 h-9 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center text-base group-hover:scale-110 transition-transform">❤️</div>
+                            <div class="w-9 h-9 rounded-2xl premium-grad-card text-white flex items-center justify-center text-base group-hover:scale-110 transition-transform shadow-md shadow-indigo-200/50">❤️</div>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-sm">Health Story</h3>
                                 <p class="text-[10px] text-slate-400 mt-1">Timeline & key milestone events</p>
                             </div>
                         </div>
                         <div onclick="switchView('map')" class="bg-white p-5 rounded-3xl border border-slate-100 card-shadow hover:border-blue-400 cursor-pointer transition-all duration-300 flex flex-col justify-between h-40 group">
-                            <div class="w-9 h-9 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-base group-hover:scale-110 transition-transform">🧬</div>
+                            <div class="w-9 h-9 rounded-2xl premium-grad-card text-white flex items-center justify-center text-base group-hover:scale-110 transition-transform shadow-md shadow-indigo-200/50">🧬</div>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-sm">Health Map</h3>
                                 <p class="text-[10px] text-slate-400 mt-1">Biomedical link network</p>
                             </div>
                         </div>
                         <div onclick="focusChat()" class="bg-white p-5 rounded-3xl border border-slate-100 card-shadow hover:border-blue-400 cursor-pointer transition-all duration-300 flex flex-col justify-between h-40 group">
-                            <div class="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-base group-hover:scale-110 transition-transform">💬</div>
+                            <div class="w-9 h-9 rounded-2xl premium-grad-card text-white flex items-center justify-center text-base group-hover:scale-110 transition-transform shadow-md shadow-indigo-200/50">💬</div>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-sm">AI Agent Chat</h3>
                                 <p class="text-[10px] text-slate-400 mt-1">Deep diagnostics consultations</p>
                             </div>
                         </div>
                         <div onclick="triggerTool('Health Summary')" class="bg-white p-5 rounded-3xl border border-slate-100 card-shadow hover:border-blue-400 cursor-pointer transition-all duration-300 flex flex-col justify-between h-40 group">
-                            <div class="w-9 h-9 rounded-2xl bg-purple-50 text-purple-500 flex items-center justify-center text-base group-hover:scale-110 transition-transform">📄</div>
+                            <div class="w-9 h-9 rounded-2xl premium-grad-card text-white flex items-center justify-center text-base group-hover:scale-110 transition-transform shadow-md shadow-indigo-200/50">📄</div>
                             <div>
                                 <h3 class="font-bold text-slate-800 text-sm">Multi-Summary</h3>
                                 <p class="text-[10px] text-slate-400 mt-1">Correlate checked documents</p>
@@ -463,29 +470,29 @@
                             <div class="absolute left-4 right-4 h-0.5 bg-slate-100 top-[34px] z-0"></div>
                             
                             <div class="relative z-10 text-center flex-1 cursor-pointer" onclick="clickTimelineNode('Jan 2023', 'Blood Test', 'Initial metabolic run. Lipid profile registered slightly higher than traditional markers.')">
-                                <div class="w-8 h-8 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white hover:scale-110 transition-transform">🩸</div>
+                                <div class="w-8 h-8 premium-grad-card text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white shadow-lg shadow-indigo-100/50 hover:scale-110 transition-transform">🩸</div>
                                 <p class="text-[10px] font-bold text-slate-800">Jan 2023</p>
                                 <p class="text-[9px] text-slate-400">Blood Test</p>
                             </div>
                             <div class="relative z-10 text-center flex-1 cursor-pointer" onclick="clickTimelineNode('Mar 2023', 'Prescription', 'Initiated standard Lisinopril protocol for moderate blood pressure adjustment.')">
-                                <div class="w-8 h-8 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white hover:scale-110 transition-transform">💊</div>
+                                <div class="w-8 h-8 premium-grad-card text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white shadow-lg shadow-indigo-100/50 hover:scale-110 transition-transform">💊</div>
                                 <p class="text-[10px] font-bold text-slate-800">Mar 2023</p>
                                 <p class="text-[9px] text-slate-400">Lisinopril Rx</p>
                             </div>
                             <div class="relative z-10 text-center flex-1 cursor-pointer" onclick="clickTimelineNode('Jun 2023', 'Chest X-Ray', 'Clinical chest imaging completed. Pulmonology margins evaluated clean.')">
-                                <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white hover:scale-110 transition-transform">🩻</div>
+                                <div class="w-8 h-8 premium-grad-card text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white shadow-lg shadow-indigo-100/50 hover:scale-110 transition-transform">🩻</div>
                                 <p class="text-[10px] font-bold text-slate-800">Jun 2023</p>
                                 <p class="text-[9px] text-slate-400">Chest X-Ray</p>
                             </div>
                             <div class="relative z-10 text-center flex-1 cursor-pointer" onclick="clickTimelineNode('Nov 2023', 'Cardiology Consult', 'Consultation with Cardiology Specialist. ECG readings indicate fully standard sinus rhythms.')">
-                                <div class="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white hover:scale-110 transition-transform">🏥</div>
+                                <div class="w-8 h-8 premium-grad-card text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white shadow-lg shadow-indigo-100/50 hover:scale-110 transition-transform">🏥</div>
                                 <p class="text-[10px] font-bold text-slate-800">Nov 2023</p>
                                 <p class="text-[9px] text-slate-400">Consult</p>
                             </div>
                             <div class="relative z-10 text-center flex-1 cursor-pointer" onclick="clickTimelineNode('Today', 'You are here', 'Real-time telemetry and biometrics streaming into current medical passport.')">
-                                <div class="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white shadow-lg shadow-blue-100 hover:scale-110 transition-transform">✨</div>
-                                <p class="text-[10px] font-bold text-blue-600">Today</p>
-                                <p class="text-[9px] text-blue-500 font-semibold">Active</p>
+                                <div class="w-8 h-8 premium-grad-card text-white rounded-full flex items-center justify-center mx-auto mb-2 text-xs font-bold ring-4 ring-white shadow-lg shadow-indigo-100/50 hover:scale-110 transition-transform">✨</div>
+                                <p class="text-[10px] font-bold text-indigo-600">Today</p>
+                                <p class="text-[9px] text-indigo-500 font-semibold">Active</p>
                             </div>
                         </div>
                     </div>
@@ -906,7 +913,7 @@
         </div>
     </div>
 
-    <!-- Welcome Modal (Replacing Browser Prompt) -->
+    <!-- Welcome Modal -->
     <div id="welcomeModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full border border-slate-200 shadow-2xl space-y-5">
             <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl mx-auto">
@@ -920,7 +927,7 @@
                 <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Your Name</label>
                 <input type="text" id="welcomeNameInput" class="w-full text-xs px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-blue-500 bg-slate-50 text-slate-700" placeholder="Danielle Johnson">
             </div>
-            <button onclick="submitWelcomeName()" class="w-full py-3 bg-[#2563EB] hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-100">
+            <button onclick="submitWelcomeName()" class="w-full py-3 premium-grad-card text-white font-bold text-xs rounded-xl transition shadow-lg hover:opacity-90">
                 Enter Dashboard
             </button>
         </div>
@@ -1074,7 +1081,7 @@
             toast.className = `p-4 rounded-2xl text-xs font-semibold shadow-xl transition-all duration-300 transform translate-y-2 opacity-0 text-white pointer-events-none flex items-center justify-between gap-3 min-w-[250px] max-w-sm z-50`;
             
             if (type === "success") {
-                toast.classList.add('bg-emerald-600');
+                toast.classList.add('premium-grad-card', 'shadow-indigo-200/50', 'border', 'border-white/20');
             } else if (type === "error") {
                 toast.classList.add('bg-rose-600');
             } else if (type === "warning") {
@@ -1842,7 +1849,7 @@ Ensure clean format without leaking raw asterisks, raw backslashes, or escaped b
                                 <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase">Workspace AI Output</span>
                                 <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight mt-1" id="report-brief-title">${toolName} Analysis</h3>
                             </div>
-                            <button onclick="downloadPDFBriefing(${reportId})" class="bg-[#2563EB] text-white font-bold text-[10px] uppercase px-4 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-100/50">Export Report</button>
+                            <button onclick="downloadPDFBriefing(${reportId})" class="premium-grad-card text-white font-bold text-[10px] uppercase px-4 py-2.5 rounded-xl hover:opacity-90 transition shadow-lg border-0">Export Report</button>
                         </div>
                         
                         <div class="p-8 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl card-shadow prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-200 tex2jax_process leading-relaxed">
@@ -1953,7 +1960,7 @@ Ensure clean format without leaking raw asterisks, raw backslashes, or escaped b
                                 <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase">Workspace AI Output</span>
                                 <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight mt-1" id="report-brief-title">${report.title}</h3>
                             </div>
-                            <button onclick="downloadPDFBriefing(${report.id})" class="bg-[#2563EB] text-white font-bold text-[10px] uppercase px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">Export Report</button>
+                            <button onclick="downloadPDFBriefing(${report.id})" class="premium-grad-card text-white font-bold text-[10px] uppercase px-4 py-2.5 rounded-xl hover:opacity-90 transition shadow-lg border-0">Export Report</button>
                         </div>
                         
                         <div class="p-8 bg-white border border-slate-200/60 rounded-3xl card-shadow prose max-w-none text-slate-700 tex2jax_process">
@@ -2012,10 +2019,13 @@ Ensure clean format without leaking raw asterisks, raw backslashes, or escaped b
             switchView('result');
             
             const container = document.getElementById('view-result');
+            // Premium unified search loading skeleton
             container.innerHTML = `
-                <div class="space-y-4 animate-pulse p-4">
-                    <div class="h-4 bg-slate-200 rounded w-1/4"></div>
-                    <div class="h-10 bg-slate-100 rounded w-full"></div>
+                <div class="space-y-4 p-6">
+                    <div class="h-4 premium-grad-card rounded-full w-1/3 animate-pulse opacity-80"></div>
+                    <div class="h-10 premium-grad-card rounded-2xl w-full animate-pulse opacity-40"></div>
+                    <div class="h-20 premium-grad-card rounded-2xl w-full animate-pulse opacity-20"></div>
+                    <p class="text-xs text-indigo-500 font-bold animate-pulse mt-4">Querying medical journals & live web...</p>
                 </div>
             `;
             
@@ -2023,11 +2033,11 @@ Ensure clean format without leaking raw asterisks, raw backslashes, or escaped b
             if (targetKey) {
                 try {
                     const payload = {
-                        contents: [{ parts: [{ text: query }] }],
+                        contents: [{ parts: [{ text: `Search the web for relevant medical journals or clinical context regarding: ${query}. Provide a structured, reassuring response.` }] }],
                         tools: [{ "google_search": {} }]
                     };
                     const resJson = await fetchGeminiAPI(payload);
-                    const aiRawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    const aiRawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text || "No findings retrieved for this query.";
                     
                     const attributions = resJson.candidates?.[0]?.groundingMetadata?.groundingAttributions || [];
                     let linksHTML = attributions.map((a, i) => `
@@ -2037,7 +2047,7 @@ Ensure clean format without leaking raw asterisks, raw backslashes, or escaped b
                                 <span class="text-slate-400 text-[10px] block mt-0.5 truncate max-w-[200px]" id="url-text-${i}">${a.web?.uri}</span>
                             </div>
                             <div class="flex gap-1.5 shrink-0">
-                                <button onclick="saveWebSearchLink('${(a.web?.title || "Journal").replace(/'/g, "\\'")}', '${a.web?.uri}')" class="text-[9px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded">Save Source</button>
+                                <button onclick="saveWebSearchLink('${(a.web?.title || "Journal").replace(/'/g, "\\'")}', '${a.web?.uri}')" class="text-[9px] font-bold text-white premium-grad-card px-2 py-1 rounded shadow-sm hover:opacity-90">Save Source</button>
                                 <button onclick="copyToClipboard('url-text-${i}')" class="text-[9px] font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded">Copy URL</button>
                             </div>
                         </div>
@@ -2045,13 +2055,16 @@ Ensure clean format without leaking raw asterisks, raw backslashes, or escaped b
 
                     container.innerHTML = DOMPurify.sanitize(`
                         <div class="space-y-6 text-left pb-16 tex2jax_process">
-                            <div class="border-b border-slate-100 pb-4">
-                                <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight">Biomedical Journal References</h3>
-                                <p class="text-xs text-slate-400 mt-1">Grounding results matching query "${query}"</p>
+                            <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight">Biomedical Journal References</h3>
+                                    <p class="text-xs text-slate-400 mt-1">Grounding results matching query "${query}"</p>
+                                </div>
+                                <span class="premium-grad-card text-[9px] font-bold px-2.5 py-1 text-white rounded-full shadow-md">Live Search Active</span>
                             </div>
                             
                             <div class="p-6 bg-white border border-slate-100 rounded-2xl card-shadow text-xs leading-relaxed text-slate-700">
-                                ${aiRawText.replace(/\n/g, '<br>')}
+                                ${parseMarkdownToHTML(aiRawText)}
                             </div>
 
                             ${linksHTML.length > 0 ? `<div class="space-y-2 mt-4"><h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Grounding Sources</h4>${linksHTML}</div>` : ''}
@@ -2074,17 +2087,20 @@ Ensure clean format without leaking raw asterisks, raw backslashes, or escaped b
             const container = document.getElementById('view-result');
             container.innerHTML = DOMPurify.sanitize(`
                 <div class="space-y-6 text-left pb-16">
-                    <div class="border-b border-slate-100 pb-4">
-                        <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight">Biomedical Search Index</h3>
-                        <p class="text-xs text-slate-400 mt-1">Grounding medical journals for: "${query}"</p>
+                    <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-extrabold text-[#2563EB] tracking-tight">Biomedical Search Index</h3>
+                            <p class="text-xs text-slate-400 mt-1">Grounding medical journals for: "${query}"</p>
+                        </div>
+                        <span class="premium-grad-card text-[9px] font-bold px-2.5 py-1 text-white rounded-full shadow-md">Simulated Network Search</span>
                     </div>
                     <div class="space-y-4">
                         <div class="p-5 bg-white border border-slate-100 rounded-2xl card-shadow">
                             <div class="flex justify-between items-start">
-                                <h4 class="text-xs font-extrabold text-[#2563EB] hover:underline cursor-pointer" onclick="window.open('https://www.ncbi.nlm.nih.gov/pmc/', '_blank')">PubMed Central: Pediatric Respiratory & Airway Markings</h4>
-                                <button onclick="saveWebSearchLink('PMC Journal: ${query.replace(/'/g, "\\'")}', 'https://www.ncbi.nlm.nih.gov/pmc/')" class="text-[9px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded">Save Source</button>
+                                <h4 class="text-xs font-extrabold text-[#2563EB] hover:underline cursor-pointer" onclick="window.open('https://www.ncbi.nlm.nih.gov/pmc/', '_blank')">PubMed Central: Medical Reference & Airway Markings</h4>
+                                <button onclick="saveWebSearchLink('PMC Journal: ${query.replace(/'/g, "\\'")}', 'https://www.ncbi.nlm.nih.gov/pmc/')" class="text-[9px] font-bold text-white premium-grad-card hover:opacity-90 px-2.5 py-1 rounded shadow-sm">Save Source</button>
                             </div>
-                            <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">Evaluating clinical metrics indicating direct physiological relationships between bronchi, bronchial thickening, hyperinflation, and pediatric airway care.</p>
+                            <p class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">Evaluating clinical metrics indicating direct physiological relationships relevant to your recent query string.</p>
                             <div class="flex items-center gap-2 mt-2">
                                 <span class="text-[10px] text-emerald-600 font-medium truncate select-all" id="url-text-0">https://www.ncbi.nlm.nih.gov/pmc/</span>
                                 <button onclick="copyToClipboard('url-text-0')" class="text-[9px] font-bold text-slate-400 hover:text-slate-600">Copy URL</button>
@@ -2348,5 +2364,7 @@ Ensure clean format without leaking raw asterisks, raw backslashes, or escaped b
     </script>
 </body>
 </html>
+
+
 
 ```
