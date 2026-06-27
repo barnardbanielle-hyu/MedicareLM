@@ -31,4 +31,4 @@ MedicareLM is an AI-powered health intelligence platform that helps users analyz
 
 ## Disclaimer
 
-This project is intended for educational and demonstration purposes only and should not be used as a substitute for professional medical advice.
+This project is intended for educational and demonstration purposes only and should not be used as a substitute for professional medical advice. MedicareLM is an AI assistant, not a doctor. Consult a medical professional for all health decisions. This project currently uses client-side API keys for demonstration purposes. For production, please implement a server-side proxy.
